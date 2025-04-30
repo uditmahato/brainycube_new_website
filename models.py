@@ -3,7 +3,7 @@ from extensions import db
 
 class Header(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    logo = db.Column(db.String(100), nullable=False)
+    logo = db.Column(db.Text, nullable=False)
 
 class Banner(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,7 +14,7 @@ class Banner(db.Model):
 class About(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text, nullable=False)
-    logo = db.Column(db.String(500), nullable=False)
+    logo = db.Column(db.Text, nullable=False)
     collaborators = db.Column(db.Integer, nullable=False)
     students = db.Column(db.Integer, nullable=False)
     projects = db.Column(db.Integer, nullable=False)

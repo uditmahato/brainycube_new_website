@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-gray-100 font-sans flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6 text-green-600">Admin Login</h2>
+        <div id="error-message" class="text-red-600 text-center mb-4 hidden"></div>
+        <div class="space-y-4">
+            <div class="flex items-center border rounded-lg p-3">
+                <i class="fas fa-envelope text-green-600 mr-3"></i>
+                <input type="email" id="email" placeholder="Enter your email" class="w-full outline-none" required>
+            </div>
+            <div class="flex items-center border rounded-lg p-3">
+                <i class="fas fa-lock text-green-600 mr-3"></i>
+                <input type="password" id="password" placeholder="Enter your password" class="w-full outline-none" required>
+            </div>
+            <button onclick="signIn()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">Login</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration (replace with your Firebase project config)
+        const firebaseConfig = {
+    apiKey: "AIzaSyC6dRkg9d0xxr6VYNKvofXn7UuqUr2PMqQ",
+    authDomain: "brainycuberesearchorganization.firebaseapp.com",
+    projectId: "brainycuberesearchorganization",
+    storageBucket: "brainycuberesearchorganization.firebasestorage.app",
+    messagingSenderId: "213705503606",
+    appId: "1:213705503606:web:bffd52474b797edccfc057"
+  };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Sign in function
+        function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Get the ID token
+                    return userCredential.user.getIdToken();
+                })
+                .then((idToken) => {
+                    // Send the ID token to the server to create a session cookie
+                    fetch('/sessionLogin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ idToken: idToken })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Redirect to the CMS page after successful login
+                            window.location.href = '/cms';
+                        } else {
+                            throw new Error(data.error || 'Failed to set session cookie');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error setting session cookie:', error);
+                        errorMessage.textContent = 'Failed to set session cookie: ' + error.message;
+                        errorMessage.classList.remove('hidden');
+                    });
+                })
+                .catch((error) => {
+                    console.error('Login error:', error);
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                });
+        }
+    </script>
+</body>
+</html>
