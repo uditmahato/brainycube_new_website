@@ -13,7 +13,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', '8f4d2c9a5e7b1d3f9c0e2a8b6d4f5e7c
 
 # Load Firebase Admin SDK credentials
 try:
-    cred = credentials.Certificate('brainycuberesearchorganization-firebase-adminsdk-fbsvc-33d64e71f5.json') # Update with your file name
+    cred = credentials.Certificate('brainycuberesearchorganization-firebase-adminsdk-fbsvc-413acb7eda.json') # Update with your file name
     firebase_admin.initialize_app(cred)
 except Exception as e:
     print(f"Error initializing Firebase Admin SDK: {str(e)}")
