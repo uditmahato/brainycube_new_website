@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainycube Research Organization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white font-sans">
+  <!-- Header Section -->
+  <header class="sticky top-0 z-50 bg-white shadow-md">
+    <nav class="container mx-auto flex items-center justify-between py-4 px-6">
+      <div class="text-2xl font-bold text-green-600">{{ header.logo if header else "Brainycube" }}</div>
+      <ul class="hidden md:flex space-x-6">
+        <li><a href="#home" class="text-gray-700 hover:text-green-600">Home</a></li>
+        <li><a href="#about" class="text-gray-700 hover:text-green-600">About</a></li>
+        <li><a href="#services" class="text-gray-700 hover:text-green-600">Services</a></li>
+        <li><a href="#events" class="text-gray-700 hover:text-green-600">Events</a></li>
+        <li><a href="#members" class="text-gray-700 hover:text-green-600">Members</a></li>
+        <li><a href="#team" class="text-gray-700 hover:text-green-600">Team</a></li>
+        <li><a href="#contact" class="text-gray-700 hover:text-green-600">Contact</a></li>
+        <li><a href="#faqs" class="text-gray-700 hover:text-green-600">FAQs</a></li>
+        <li><a href="/cms" class="text-gray-700 hover:text-green-600">CMS</a></li>
+      </ul>
+      <div class="md:hidden">
+        <button id="menu-toggle" class="text-gray-700"><i class="fas fa-bars"></i></button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Banner Section -->
+  <section id="home" class="relative">
+    <img src="{{ banner.image if banner else 'https://via.placeholder.com/1920x600' }}" class="w-full h-[600px] object-cover">
+    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="text-center text-white">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">{{ banner.title if banner else "Brainycube Research Organization" }}</h1>
+        <p class="text-xl md:text-2xl mb-6">{{ banner.subtitle if banner else "Knowledge and exploration are what we stand for." }}</p>
+        <a href="#about" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" class="py-16">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">About Us</h2>
+      <div class="flex flex-col md:flex-row items-center">
+        <img src="{{ about.logo if about else 'https://via.placeholder.com/300' }}" class="w-48 h-48 mb-6 md:mb-0 md:mr-12">
+        <div>
+          <p class="text-gray-700 mb-6">{{ about.description if about else "Brainycube is a global research organization founded by young, energetic scientists during their Bachelor's Studies..." }}</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <p class="text-2xl font-bold text-green-600">{{ about.collaborators if about else 32 }}</p>
+              <p class="text-gray-700">Collaborators</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-green-600">{{ about.students if about else 72 }}</p>
+              <p class="text-gray-700">Students and Graduates</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-green-600">{{ about.projects if about else 28 }}</p>
+              <p class="text-gray-700">Projects Completed</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-green-600">{{ about.clicks if about else 1250 }}</p>
+              <p class="text-gray-700">Unique Clicks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Brainycube Section -->
+  <section id="why-choose" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">Why Choose Brainycube</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {% for card in why_choose %}
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas {{ card.icon }} text-4xl text-green-600 mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">{{ card.title }}</h3>
+          <p class="text-gray-700 mb-4">{{ card.description }}</p>
+          <a href="#" class="text-green-600 hover:underline">Read More</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Highlights Section -->
+  <section id="highlights" class="py-16">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">Highlights</h2>
+      <div class="relative">
+        <div class="flex overflow-x-auto space-x-4">
+          {% for highlight in highlights %}
+          <img src="{{ highlight.image }}" alt="Highlight" class="rounded-lg">
+          {% endfor %}
+        </div>
+        <button class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-2 rounded-full"><i class="fas fa-chevron-left"></i></button>
+        <button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-2 rounded-full"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">Services</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for service in services %}
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <i class="fas {{ service.icon }} text-4xl text-green-600 mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">{{ service.title }}</h3>
+          <p class="text-gray-700">{{ service.description }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-8 text-center">
+        <p class="text-gray-700 mb-4">Additional Services: {{ additional_services }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events and Programs Section -->
+  <section id="events" class="py-16">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Events and Programs</h2>
+      <div class="flex justify-center mb-8">
+        <div class="inline-flex space-x-4">
+          <button class="filter-btn px-4 py-2 bg-green-600 text-white rounded-lg" data-filter="all">All</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2014">2014</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2016">2016</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2017">2017</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2018">2018</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2019">2019</button>
+        </div>
+      </div>
+      <div id="event-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 gallery">
+        {% for event in events %}
+        <div class="gallery-item" data-year="{{ event.year }}">
+          <img src="{{ event.image }}" alt="{{ event.title }}" class="w-full h-48 object-cover rounded-lg">
+        </div>
+        {% endfor %}
+      </div>
+      <div class="flex justify-end mt-8">
+        <a href="#home" class="bg-green-600 text-white p-3 rounded-full hover:bg-green-700"><i class="fas fa-arrow-up"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Members Section -->
+  <section id="team" class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-12">Meet our Team Members</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {% for member in team %}
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+          <img src="{{ member.image }}" alt="{{ member.name }}" class="w-32 h-32 rounded-full mx-auto mb-4">
+          <h3 class="text-xl font-bold mb-2">{{ member.name }}</h3>
+          <p class="text-gray-700 mb-2">{{ member.title }}</p>
+          <p class="text-gray-700 mb-4">{{ member.bio }}</p>
+          <div class="flex justify-center space-x-4">
+            <a href="{{ member.linkedin }}" class="text-green-600"><i class="fab fa-linkedin"></i></a>
+            <a href="{{ member.github }}" class="text-green-600"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16">
+    <div class="container mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-4">Get in touch</h2>
+      <p class="text-center text-gray-700 mb-12">Fill in the form to start a conversation</p>
+      <div class="flex flex-col md:flex-row">
+        <div class="md:w-1/2 mb-8 md:mb-0">
+          <p class="text-gray-700 mb-4"><i class="fas fa-map-marker-alt text-green-600 mr-2"></i>{{ contact.location if contact else "Kathmandu, Nepal" }}</p>
+          <p class="text-gray-700 mb-4"><i class="fas fa-envelope text-green-600 mr-2"></i>{{ contact.email if contact else "info@brainycube.org" }}</p>
+          <p class="text-gray-700"><i class="fas fa-phone text-green-600 mr-2"></i>{{ contact.phone if contact else "+977-123-456-7890" }}</p>
+        </div>
+        <div class="md:w-1/2">
+          <div class="space-y-4">
+            <input type="text" placeholder="Name" class="w-full p-3 border rounded-lg">
+            <input type="email" placeholder="Email" class="w-full p-3 border rounded-lg">
+            <input type="tel" placeholder="Phone" class="w-full p-3 border rounded-lg">
+            <textarea placeholder="Message" class="w-full p-3 border rounded-lg h-32"></textarea>
+            <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="bg-gray-800 text-white py-12">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <div class="text-2xl font-bold text-green-600 mb-4">Brainycube</div>
+          <p class="mb-4">{{ footer.address if footer else "Kathmandu, Nepal" }}</p>
+          <p class="mb-4">{{ footer.email if footer else "info@brainycube.org" }}</p>
+          <p>{{ footer.phone if footer else "+977-123-456-7890" }}</p>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+          <ul class="space-y-2">
+            <li><a href="#services" class="hover:text-green-600">Services</a></li>
+            <li><a href="#events" class="hover:text-green-600">Events</a></li>
+            <li><a href="#members" class="hover:text-green-600">Members</a></li>
+            <li><a href="#" class="hover:text-green-600">Join Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+          <div class="flex space-x-4">
+            <a href="{{ footer.linkedin if footer else '#' }}" class="text-green-600 hover:text-green-700"><i class="fab fa-linkedin"></i></a>
+            <a href="{{ footer.github if footer else '#' }}" class="text-green-600 hover:text-green-700"><i class="fab fa-github"></i></a>
+            <a href="{{ footer.twitter if footer else '#' }}" class="text-green-600 hover:text-green-700"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 text-center">
+        <p>© 2025 Brainycube Research Organization. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile Menu Toggle
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const nav = document.querySelector('nav ul');
+      nav.classList.toggle('hidden');
+    });
+
+    // Gallery Filter Functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.getAttribute('data-filter');
+
+        filterButtons.forEach(btn => {
+          btn.classList.remove('bg-green-600', 'text-white');
+          btn.classList.add('bg-gray-200', 'text-gray-700');
+        });
+        button.classList.remove('bg-gray-200', 'text-gray-700');
+        button.classList.add('bg-green-600', 'text-white');
+
+        galleryItems.forEach(item => {
+          const itemYear = item.getAttribute('data-year');
+          if (filter === 'all' || itemYear === filter) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

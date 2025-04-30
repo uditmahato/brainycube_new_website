@@ -1,0 +1,5 @@
+{
+    "user": "postgres",
+    "password": "udit",
+    "database": "brainycube_db"
+  }

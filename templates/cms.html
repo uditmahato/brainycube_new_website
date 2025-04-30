@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainycube CMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white font-sans">
+  <!-- Header Section -->
+  <header class="sticky top-0 z-50 bg-white shadow-md">
+    <nav class="container mx-auto flex items-center justify-between py-4 px-6">
+      <div class="text-2xl font-bold text-green-600">Brainycube CMS</div>
+      <div>
+        <a href="/" class="text-gray-700 hover:text-green-600">Back to Website</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main CMS Section -->
+  <main class="container mx-auto px-6 py-16">
+    <!-- Dashboard Overview -->
+    <section id="dashboard" class="mb-12">
+      <h1 class="text-3xl font-bold text-center mb-8">Content Management Dashboard</h1>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Header</h2>
+          <a href="#header-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Banner</h2>
+          <a href="#banner-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">About Us</h2>
+          <a href="#about-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Why Choose</h2>
+          <a href="#why-choose-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Highlights</h2>
+          <a href="#highlights-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Services</h2>
+          <a href="#services-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Events</h2>
+          <a href="#events-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Team</h2>
+          <a href="#team-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Contact</h2>
+          <a href="#contact-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+          <h2 class="text-xl font-bold text-green-600 mb-2">Footer</h2>
+          <a href="#footer-cms" class="text-green-600 hover:underline">Edit</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Header CMS Section -->
+    <section id="header-cms" class="py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Header</h2>
+      <div class="bg-gray-100 p-6 rounded-lg">
+        <div class="space-y-4">
+          <input type="text" id="header-logo" placeholder="Logo Text (e.g., Brainycube)" class="w-full p-3 border rounded-lg">
+          <button onclick="updateHeader()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Header</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Banner CMS Section -->
+    <section id="banner-cms" class="py-16 bg-gray-100">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Banner</h2>
+      <div class="bg-white p-6 rounded-lg">
+        <div class="space-y-4">
+          <input type="text" id="banner-title" placeholder="Banner Title" class="w-full p-3 border rounded-lg">
+          <input type="text" id="banner-subtitle" placeholder="Banner Subtitle" class="w-full p-3 border rounded-lg">
+          <input type="file" id="banner-image" accept="image/*" class="w-full p-3 border rounded-lg">
+          <button onclick="updateBanner()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Banner</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Us CMS Section -->
+    <section id="about-cms" class="py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage About Us</h2>
+      <div class="bg-gray-100 p-6 rounded-lg">
+        <div class="space-y-4">
+          <textarea id="about-description" placeholder="About Us Description" class="w-full p-3 border rounded-lg h-32"></textarea>
+          <input type="file" id="about-logo" accept="image/*" class="w-full p-3 border rounded-lg">
+          <input type="number" id="about-collaborators" placeholder="Collaborators" class="w-full p-3 border rounded-lg">
+          <input type="number" id="about-students" placeholder="Students and Graduates" class="w-full p-3 border rounded-lg">
+          <input type="number" id="about-projects" placeholder="Projects Completed" class="w-full p-3 border rounded-lg">
+          <input type="number" id="about-clicks" placeholder="Unique Clicks" class="w-full p-3 border rounded-lg">
+          <button onclick="updateAbout()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update About Us</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Choose Brainycube CMS Section -->
+    <section id="why-choose-cms" class="py-16 bg-gray-100">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Why Choose Brainycube</h2>
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold mb-6">Add New Card</h3>
+        <div class="bg-white p-6 rounded-lg">
+          <div class="space-y-4">
+            <input type="text" id="why-title" placeholder="Card Title" class="w-full p-3 border rounded-lg">
+            <input type="text" id="why-icon" placeholder="FontAwesome Icon (e.g., fa-users)" class="w-full p-3 border rounded-lg">
+            <textarea id="why-description" placeholder="Description" class="w-full p-3 border rounded-lg h-32"></textarea>
+            <button onclick="addWhyChoose()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Card</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-6">Card List</h3>
+        <div id="why-choose-list" class="grid grid-cols-1 md:grid-cols-4 gap-8"></div>
+      </div>
+    </section>
+
+    <!-- Highlights CMS Section -->
+    <section id="highlights-cms" class="py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Highlights</h2>
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold mb-6">Add New Highlight Image</h3>
+        <div class="bg-gray-100 p-6 rounded-lg">
+          <div class="space-y-4">
+            <input type="file" id="highlight-image" accept="image/*" class="w-full p-3 border rounded-lg">
+            <button onclick="addHighlight()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Highlight</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-6">Highlight List</h3>
+        <div id="highlight-list" class="flex overflow-x-auto space-x-4"></div>
+      </div>
+    </section>
+
+    <!-- Services CMS Section -->
+    <section id="services-cms" class="py-16 bg-gray-100">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Services</h2>
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold mb-6">Add New Service</h3>
+        <div class="bg-white p-6 rounded-lg">
+          <div class="space-y-4">
+            <input type="text" id="service-title" placeholder="Service Title" class="w-full p-3 border rounded-lg">
+            <input type="text" id="service-icon" placeholder="FontAwesome Icon (e.g., fa-flask)" class="w-full p-3 border rounded-lg">
+            <textarea id="service-description" placeholder="Description" class="w-full p-3 border rounded-lg h-32"></textarea>
+            <button onclick="addService()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Service</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-6">Service List</h3>
+        <div id="service-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+      </div>
+      <div class="mt-12">
+        <h3 class="text-2xl font-bold mb-6">Additional Services</h3>
+        <div class="bg-white p-6 rounded-lg">
+          <textarea id="additional-services" placeholder="Additional Services (e.g., Scientific Event Management, Web Development)" class="w-full p-3 border rounded-lg h-32"></textarea>
+          <button onclick="updateAdditionalServices()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Additional Services</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Events CMS Section -->
+    <section id="events-cms" class="py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Events</h2>
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold mb-6">Add New Event</h3>
+        <div class="bg-gray-100 p-6 rounded-lg">
+          <div class="space-y-4">
+            <input type="text" id="event-title" placeholder="Event Title" class="w-full p-3 border rounded-lg">
+            <select id="event-year" class="w-full p-3 border rounded-lg">
+              <option value="2014">2014</option>
+              <option value="2016">2016</option>
+              <option value="2017">2017</option>
+              <option value="2018">2018</option>
+              <option value="2019">2019</option>
+            </select>
+            <input type="file" id="event-image" accept="image/*" class="w-full p-3 border rounded-lg">
+            <button onclick="addEvent()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Event</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-6">Event List</h3>
+        <div id="event-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"></div>
+      </div>
+    </section>
+
+    <!-- Team Members CMS Section -->
+    <section id="team-cms" class="py-16 bg-gray-100">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Team Members</h2>
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold mb-6">Add New Team Member</h3>
+        <div class="bg-white p-6 rounded-lg">
+          <div class="space-y-4">
+            <input type="text" id="team-name" placeholder="Name" class="w-full p-3 border rounded-lg">
+            <input type="text" id="team-title" placeholder="Title (e.g., Co-founder)" class="w-full p-3 border rounded-lg">
+            <textarea id="team-bio" placeholder="Short Bio" class="w-full p-3 border rounded-lg h-32"></textarea>
+            <input type="file" id="team-image" accept="image/*" class="w-full p-3 border rounded-lg">
+            <input type="text" id="team-linkedin" placeholder="LinkedIn URL" class="w-full p-3 border rounded-lg">
+            <input type="text" id="team-github" placeholder="GitHub URL" class="w-full p-3 border rounded-lg">
+            <button onclick="addTeamMember()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Team Member</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-6">Team Member List</h3>
+        <div id="team-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+      </div>
+    </section>
+
+    <!-- Contact CMS Section -->
+    <section id="contact-cms" class="py-16">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Contact</h2>
+      <div class="bg-gray-100 p-6 rounded-lg">
+        <div class="space-y-4">
+          <input type="text" id="contact-location" placeholder="Location (e.g., Kathmandu, Nepal)" class="w-full p-3 border rounded-lg">
+          <input type="email" id="contact-email" placeholder="Email" class="w-full p-3 border rounded-lg">
+          <input type="tel" id="contact-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg">
+          <button onclick="updateContact()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Contact</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer CMS Section -->
+    <section id="footer-cms" class="py-16 bg-gray-100">
+      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Footer</h2>
+      <div class="bg-white p-6 rounded-lg">
+        <div class="space-y-4">
+          <input type="text" id="footer-address" placeholder="Address (e.g., Kathmandu, Nepal)" class="w-full p-3 border rounded-lg">
+          <input type="email" id="footer-email" placeholder="Email" class="w-full p-3 border rounded-lg">
+          <input type="tel" id="footer-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg">
+          <input type="text" id="footer-linkedin" placeholder="LinkedIn URL" class="w-full p-3 border rounded-lg">
+          <input type="text" id="footer-github" placeholder="GitHub URL" class="w-full p-3 border rounded-lg">
+          <input type="text" id="footer-twitter" placeholder="Twitter URL" class="w-full p-3 border rounded-lg">
+          <button onclick="updateFooter()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Footer</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="bg-gray-800 text-white py-12">
+    <div class="container mx-auto px-6">
+      <div class="text-center">
+        <p>© 2025 Brainycube Research Organization. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Helper function to convert file to base64
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Header Functions
+    async function updateHeader() {
+      const logo = document.getElementById('header-logo').value;
+      if (logo) {
+        const response = await fetch('/api/header', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logo })
+        });
+        const result = await response.json();
+        alert(result.message);
+      }
+    }
+
+    // Banner Functions
+    async function updateBanner() {
+      const title = document.getElementById('banner-title').value;
+      const subtitle = document.getElementById('banner-subtitle').value;
+      const imageInput = document.getElementById('banner-image');
+      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/1920x600";
+
+      const data = { title, subtitle, image };
+      const response = await fetch('/api/banner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      alert(result.message);
+    }
+
+    // About Us Functions
+    async function updateAbout() {
+      const description = document.getElementById('about-description').value;
+      const logoInput = document.getElementById('about-logo');
+      const logo = logoInput.files[0] ? await fileToBase64(logoInput.files[0]) : "https://via.placeholder.com/300";
+      const collaborators = parseInt(document.getElementById('about-collaborators').value) || 0;
+      const students = parseInt(document.getElementById('about-students').value) || 0;
+      const projects = parseInt(document.getElementById('about-projects').value) || 0;
+      const clicks = parseInt(document.getElementById('about-clicks').value) || 0;
+
+      const data = { description, logo, collaborators, students, projects, clicks };
+      const response = await fetch('/api/about', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      alert(result.message);
+    }
+
+    // Why Choose Functions
+    async function addWhyChoose() {
+      const title = document.getElementById('why-title').value;
+      const icon = document.getElementById('why-icon').value;
+      const description = document.getElementById('why-description').value;
+
+      if (title && icon && description) {
+        const response = await fetch('/api/why_choose', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, icon, description })
+        });
+        const result = await response.json();
+        alert(result.message);
+        renderWhyChoose();
+        document.getElementById('why-title').value = '';
+        document.getElementById('why-icon').value = '';
+        document.getElementById('why-description').value = '';
+      }
+    }
+
+    async function renderWhyChoose() {
+      const response = await fetch('/api/why_choose');
+      const whyChooseList = await response.json();
+      const container = document.getElementById('why-choose-list');
+      container.innerHTML = '';
+      whyChooseList.forEach(card => {
+        const cardHtml = `
+          <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <i class="fas ${card.icon} text-4xl text-green-600 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">${card.title}</h3>
+            <p class="text-gray-700 mb-4">${card.description}</p>
+            <button onclick="deleteWhyChoose(${card.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
+          </div>
+        `;
+        container.innerHTML += cardHtml;
+      });
+    }
+
+    async function deleteWhyChoose(id) {
+      const response = await fetch(`/api/why_choose/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      renderWhyChoose();
+    }
+
+    // Highlights Functions
+    async function addHighlight() {
+      const imageInput = document.getElementById('highlight-image');
+      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/400x200";
+
+      if (imageInput.files[0]) {
+        const response = await fetch('/api/highlight', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image })
+        });
+        const result = await response.json();
+        alert(result.message);
+        renderHighlights();
+        imageInput.value = '';
+      }
+    }
+
+    async function renderHighlights() {
+      const response = await fetch('/api/highlight');
+      const highlightList = await response.json();
+      const container = document.getElementById('highlight-list');
+      container.innerHTML = '';
+      highlightList.forEach(highlight => {
+        const highlightHtml = `
+          <div class="relative">
+            <img src="${highlight.image}" alt="Highlight" class="rounded-lg">
+            <button onclick="deleteHighlight(${highlight.id})" class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        container.innerHTML += highlightHtml;
+      });
+    }
+
+    async function deleteHighlight(id) {
+      const response = await fetch(`/api/highlight/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      renderHighlights();
+    }
+
+    // Services Functions
+    async function addService() {
+      const title = document.getElementById('service-title').value;
+      const icon = document.getElementById('service-icon').value;
+      const description = document.getElementById('service-description').value;
+
+      if (title && icon && description) {
+        const response = await fetch('/api/service', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, icon, description })
+        });
+        const result = await response.json();
+        alert(result.message);
+        renderServices();
+        document.getElementById('service-title').value = '';
+        document.getElementById('service-icon').value = '';
+        document.getElementById('service-description').value = '';
+      }
+    }
+
+    async function renderServices() {
+      const response = await fetch('/api/service');
+      const serviceList = await response.json();
+      const container = document.getElementById('service-list');
+      container.innerHTML = '';
+      serviceList.forEach(service => {
+        const serviceHtml = `
+          <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <i class="fas ${service.icon} text-4xl text-green-600 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">${service.title}</h3>
+            <p class="text-gray-700 mb-4">${service.description}</p>
+            <button onclick="deleteService(${service.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
+          </div>
+        `;
+        container.innerHTML += serviceHtml;
+      });
+    }
+
+    async function deleteService(id) {
+      const response = await fetch(`/api/service/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      renderServices();
+    }
+
+    async function updateAdditionalServices() {
+      const additionalServices = document.getElementById('additional-services').value;
+      if (additionalServices) {
+        const response = await fetch('/api/additional_services', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ additional_services: additionalServices })
+        });
+        const result = await response.json();
+        alert(result.message);
+      }
+    }
+
+    // Events Functions
+    async function addEvent() {
+      const title = document.getElementById('event-title').value;
+      const year = document.getElementById('event-year').value;
+      const imageInput = document.getElementById('event-image');
+      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/300x200";
+
+      if (title && year) {
+        const response = await fetch('/api/event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, year, image })
+        });
+        const result = await response.json();
+        alert(result.message);
+        renderEvents();
+        document.getElementById('event-title').value = '';
+        document.getElementById('event-year').value = '2014';
+        imageInput.value = '';
+      }
+    }
+
+    async function renderEvents() {
+      const response = await fetch('/api/event');
+      const eventList = await response.json();
+      const container = document.getElementById('event-list');
+      container.innerHTML = '';
+      eventList.forEach(event => {
+        const eventHtml = `
+          <div class="bg-white p-4 rounded-lg shadow-md">
+            <img src="${event.image}" alt="${event.title}" class="w-full h-48 object-cover rounded-lg mb-4">
+            <h3 class="text-lg font-bold">${event.title}</h3>
+            <p class="text-gray-700 mb-4">Year: ${event.year}</p>
+            <button onclick="deleteEvent(${event.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
+          </div>
+        `;
+        container.innerHTML += eventHtml;
+      });
+    }
+
+    async function deleteEvent(id) {
+      const response = await fetch(`/api/event/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      renderEvents();
+    }
+
+    // Team Members Functions
+    async function addTeamMember() {
+      const name = document.getElementById('team-name').value;
+      const title = document.getElementById('team-title').value;
+      const bio = document.getElementById('team-bio').value;
+      const imageInput = document.getElementById('team-image');
+      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/150";
+      const linkedin = document.getElementById('team-linkedin').value;
+      const github = document.getElementById('team-github').value;
+
+      if (name && title && bio) {
+        const response = await fetch('/api/team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, title, bio, image, linkedin, github })
+        });
+        const result = await response.json();
+        alert(result.message);
+        renderTeam();
+        document.getElementById('team-name').value = '';
+        document.getElementById('team-title').value = '';
+        document.getElementById('team-bio').value = '';
+        imageInput.value = '';
+        document.getElementById('team-linkedin').value = '';
+        document.getElementById('team-github').value = '';
+      }
+    }
+
+    async function renderTeam() {
+      const response = await fetch('/api/team');
+      const teamList = await response.json();
+      const container = document.getElementById('team-list');
+      container.innerHTML = '';
+      teamList.forEach(member => {
+        const memberHtml = `
+          <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <img src="${member.image}" alt="${member.name}" class="w-32 h-32 rounded-full mx-auto mb-4">
+            <h3 class="text-xl font-bold mb-2">${member.name}</h3>
+            <p class="text-gray-700 mb-2">${member.title}</p>
+            <p class="text-gray-700 mb-4">${member.bio}</p>
+            <div class="flex justify-center space-x-4 mb-4">
+              <a href="${member.linkedin}" class="text-green-600"><i class="fab fa-linkedin"></i></a>
+              <a href="${member.github}" class="text-green-600"><i class="fab fa-github"></i></a>
+            </div>
+            <button onclick="deleteTeamMember(${member.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
+          </div>
+        `;
+        container.innerHTML += memberHtml;
+      });
+    }
+
+    async function deleteTeamMember(id) {
+      const response = await fetch(`/api/team/${id}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      renderTeam();
+    }
+
+    // Contact Functions
+    async function updateContact() {
+      const location = document.getElementById('contact-location').value;
+      const email = document.getElementById('contact-email').value;
+      const phone = document.getElementById('contact-phone').value;
+
+      const data = { location, email, phone };
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      alert(result.message);
+    }
+
+    // Footer Functions
+    async function updateFooter() {
+      const address = document.getElementById('footer-address').value;
+      const email = document.getElementById('footer-email').value;
+      const phone = document.getElementById('footer-phone').value;
+      const linkedin = document.getElementById('footer-linkedin').value;
+      const github = document.getElementById('footer-github').value;
+      const twitter = document.getElementById('footer-twitter').value;
+
+      const data = { address, email, phone, linkedin, github, twitter };
+      const response = await fetch('/api/footer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      alert(result.message);
+    }
+
+    // Initial Render
+    window.onload = () => {
+      renderWhyChoose();
+      renderHighlights();
+      renderServices();
+      renderEvents();
+      renderTeam();
+    };
+  </script>
+</body>
+</html>
