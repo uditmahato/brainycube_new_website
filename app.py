@@ -1,144 +1,108 @@
+# --- Imports ---
 from flask import Flask, render_template, request, jsonify, redirect, url_for, make_response, session
 import json
 import os
-import sys # Needed if you uncomment sys.exit() for build failures
-import base64 # Needed for decoding Firebase credentials
-
-# Assuming these models exist and have the 'order_id' column for list-based models
-from extensions import db
-from models import Header, Banner, About, WhyChoose, Highlight, Service, Event, TeamMember, Contact, Footer
-
+import sys
+import base64
+from dotenv import load_dotenv
 import firebase_admin
-from firebase_admin import auth, credentials # Keep these imports even if init fails
+from firebase_admin import auth, credentials
 from functools import wraps
+from flask_migrate import Migrate, upgrade as migrate_upgrade
+from sqlalchemy import func
 
-from sqlalchemy import func # Needed for func.max
-from flask_migrate import Migrate, upgrade as migrate_upgrade # Import Migrate and upgrade function
-
-# Optional: For local development, you might use python-dotenv
-# from dotenv import load_dotenv
-# load_dotenv() # Load environment variables from a .env file if it exists
+# Load environment variables first
+load_dotenv()
+print("DEBUG: Loaded .env file")
 
 # --- App Initialization ---
 app = Flask(__name__)
 
-# Read secret key from environment variable
-app.secret_key = os.getenv('FLASK_SECRET_KEY')
-if not app.secret_key:
-    # Warning for development/missing config. In production on Vercel, this should be set.
-    print("Warning: FLASK_SECRET_KEY environment variable not set. Using a default for development.")
-    app.secret_key = 'super-fallback-secret-key-not-for-production-ever' # REPLACE with a long, random string for local dev if needed
+# Secret key
+app.secret_key = os.getenv('FLASK_SECRET_KEY') or 'super-fallback-secret-key-not-for-production-ever'
+if not os.getenv('FLASK_SECRET_KEY'):
+    print("Warning: FLASK_SECRET_KEY not set. Using default for development.")
 
 # --- Firebase Initialization ---
-# --- Firebase Initialization ---
-firebase_admin_initialized = False # <-- Flag for status
-auth = None # <-- auth instance
-
+firebase_admin_initialized = False
+auth = None
 try:
-    firebase_credentials_base64 = os.getenv('FIREBASE_CREDENTIALS_BASE64') # <-- Env var name difference
+    firebase_credentials_base64 = os.getenv('FIREBASE_CREDENTIALS_BASE64')
     if firebase_credentials_base64:
         credentials_json_str = base64.b64decode(firebase_credentials_base64).decode('utf-8')
         cred_info = json.loads(credentials_json_str)
         cred = credentials.Certificate(cred_info)
-
-        if not firebase_admin._apps: # <-- Checks if already initialized
-             firebase_admin.initialize_app(cred)
-             print("Firebase Admin SDK initialized successfully...")
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin SDK initialized successfully...")
         else:
-             print("Firebase Admin SDK already initialized.")
-
-        auth = firebase_admin.auth # <-- Assigns auth instance
-        firebase_admin_initialized = True # <-- Sets flag
-
+            print("Firebase Admin SDK already initialized.")
+        auth = firebase_admin.auth
+        firebase_admin_initialized = True
     else:
-        print("FIREBASE_CREDENTIALS_BASE64 environment variable not set...") # <-- Prints warning
-        # No exception raised here if the variable is just missing
-
-except Exception as e: # <-- Catches any error during this block
-    print(f"Error initializing Firebase Admin SDK...: {str(e)}") # <-- Prints the specific error
-    firebase_admin_initialized = False # Ensure flag is False on error
-    auth = None # Ensure auth is None on error
-    # No exception raised here on failure by default (can uncomment raise)
-
+        print("FIREBASE_CREDENTIALS_BASE64 environment variable not set...")
 except Exception as e:
-    print(f"Error initializing Firebase Admin SDK from environment variable: {str(e)}")
-    # Ensure flags and auth are correct on error
+    print(f"Error initializing Firebase Admin SDK: {str(e)}")
     firebase_admin_initialized = False
     auth = None
-    # Consider raising the exception in production if Firebase auth is critical
-    # raise e
 
 # --- Database Configuration ---
-# Read database URI from environment variable (Vercel Postgres provides DATABASE_URL or POSTGRES_URL)
 database_uri = os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL')
-db_config_ok = False # Flag to track if DB config is valid
+db_config_ok = False
+db = None
+migrate = None
 
 if database_uri:
+    if database_uri.startswith('postgres://'):
+        database_uri = database_uri.replace('postgres://', 'postgresql://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Set this once
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db_config_ok = True
-    print("Database URI loaded from environment variable.")
+    print("Database URI loaded from environment variable:", database_uri)
 else:
-    # This warning is critical for Vercel deployment if a database is needed
-    print("Warning: DATABASE_URL or POSTGRES_URL environment variable not set. Database connection is not configured.")
-    # In a Vercel deployment where the database is essential, this configuration error
-    # should ideally prevent the app from serving database-dependent requests.
+    print("Warning: DATABASE_URL or POSTGRES_URL not set. Database connection not configured.")
 
-# Initialize SQLAlchemy with app
-# Only initialize if the database URI was successfully loaded
-db = None # Initialize db to None
-migrate = None # Initialize migrate to None
+# Initialize SQLAlchemy and Flask-Migrate
 if db_config_ok:
     try:
+        print("DEBUG: Importing db from extensions")
+        from extensions import db
+        print("DEBUG: db object from extensions =", db)
+        if db is None:
+            raise ValueError("db is None after import from extensions")
         db.init_app(app)
-        print("SQLAlchemy initialized.")
-        # Initialize Flask-Migrate AFTER db is initialized
+        print("SQLAlchemy initialized successfully.")
         migrate = Migrate(app, db)
-        print("Flask-Migrate initialized.")
+        print("Flask-Migrate initialized successfully.")
+        # Import models after db initialization
+        print("DEBUG: Importing models")
+        from models import Header, Banner, About, WhyChoose, Highlight, Service, Event, TeamMember, Contact, Footer
+        print("Models imported successfully.")
     except Exception as e:
         print(f"Error initializing SQLAlchemy or Flask-Migrate: {str(e)}")
-        migrate = None # Ensure migrate is None if init fails
-        db_config_ok = False # Update flag
-
+        db_config_ok = False
+        db = None
+        migrate = None
+else:
+    print("Database initialization skipped due to missing URI.")
 
 # --- Vercel Build Step: Run Migrations ---
-# Check if the special Vercel build environment variable is set AND if db/migrate initialized OK
-if os.getenv('RUN_VERCEL_MIGRATIONS') == '1' and db and migrate:
-     print("Running database migrations during Vercel build...")
-     with app.app_context(): # Run within the application context
-         try:
-             # Use the upgrade function imported from flask_migrate
-             migrate_upgrade()
-             print("Database migration completed successfully.")
-         except Exception as e:
-             print(f"Database migration failed: {e}")
-             # In a production scenario, you might want to uncomment this
-             # to fail the Vercel build if migrations don't apply.
-             # sys.exit(1)
-     # Note: The script will continue after this block. Vercel's builder
-     # expects the script to finish so it can package the app.
-
-
-# --- App Context Setup (Optional: for db.create_all if not using migrations) ---
-# If you are fully relying on Flask-Migrate (recommended), you can remove
-# db.create_all() calls from here. The `flask db upgrade` command handles
-# schema creation and updates.
-with app.app_context():
-    if db: # Only proceed if db was successfully initialized
+if os.getenv('RUN_VERCEL_MIGRATIONS') == '1' and db_config_ok and db and migrate:
+    print("Running database migrations during Vercel build...")
+    with app.app_context():
         try:
-            # If using migrations, you typically DO NOT call db.create_all() here
-            # after the initial setup. Migrations manage the schema.
-            # If you comment this out, ensure your first migration creates all tables.
-            # db.create_all() # <--- Consider removing or commenting out if using migrations
+            migrate_upgrade()
+            print("Database migration completed successfully.")
+        except Exception as e:
+            print(f"Database migration failed: {e}")
 
-            # Optional: Perform other setup that requires the app context and db here
+# --- App Context Setup ---
+with app.app_context():
+    if db:
+        try:
             print("App context entered successfully for potential setup.")
-
         except Exception as e:
             print(f"Error during app context setup: {str(e)}")
-            # This might catch errors even if db.init_app succeeded but connection fails later
-
-
 # --- Middleware to protect routes ---
 # Configuration
 COOKIE_NAME = 'token'

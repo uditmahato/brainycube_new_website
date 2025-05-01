@@ -1,7 +1,6 @@
 __pycache__/
 brainycuberesearchorganization-firebase-adminsdk-fbsvc-0d5f0a4595.json
 *.pyc
-.env
 venv/
 config.json
 /home/udit/Desktop/bizz/brainycube_new_website/firebase_test.py
