@@ -97,7 +97,6 @@ if db_config_ok:
         print("Flask-Migrate initialized.")
     except Exception as e:
         print(f"Error initializing SQLAlchemy or Flask-Migrate: {str(e)}")
-        db = None # Ensure db is None if init fails
         migrate = None # Ensure migrate is None if init fails
         db_config_ok = False # Update flag
 
