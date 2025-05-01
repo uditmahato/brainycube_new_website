@@ -9,319 +9,756 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <style>
+    /* Explicitly define fixed behavior and height for sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0; /* Ensure it starts at the top */
+      bottom: 0; /* Make it fill the height */
+      left: 0;
+      width: 16rem; /* Equivalent to w-64 */
+      background-color: #fff; /* bg-white */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+      transform: translateX(-100%); /* transform -translate-x-full */
+      transition: transform 0.3s ease;
+      z-index: 40;
+      /* Make the sidebar content scrollable */
+      overflow-y: auto; /* Added for fixed sidebar */
+    }
+    /* Desktop state: sidebar visible */
+    .md\:translate-x-0 {
+      transform: translateX(0);
+    }
+
+    .content-area {
+      margin-left: 0; /* ml-0 */
+      transition: margin-left 0.3s ease;
+      flex-grow: 1; /* flex-1 */
+      overflow-y: auto; /* Only the content area scrolls */
+      height: 100vh; /* Ensure it takes full viewport height to enable scrolling */
+    }
+
+    /* Desktop state: content shifted */
+    @media (min-width: 768px) { /* md */
+      .content-area {
+        margin-left: 16rem; /* md:ml-64 */
+      }
+    }
+
+    .editor-toolbar {
+      background-color: #f3f4f6;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e5e7eb; /* Added border for consistency */
+      border-bottom: none; /* Separate from content border */
+      border-top-left-radius: 0.375rem;
+      border-top-right-radius: 0.375rem;
+    }
+    .editor-content {
+      min-height: 200px;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      outline: none; /* Remove default focus outline */
+      /* Ensure bottom corners match toolbar if toolbar has different radius */
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+     /* Adjust editor-content border radius when no toolbar is present */
+     .editor-content:first-child {
+         border-top-left-radius: 0.375rem;
+         border-top-right-radius: 0.375rem;
+     }
+
+
+    .image-upload-preview {
+      max-height: 200px;
+      width: auto;
+      margin-top: 1rem;
+      display: none; /* Initially hidden */
+    }
+    [draggable] {
+      cursor: move;
+    }
+
+    /* Styling for disabled move buttons */
+    .text-gray-500:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
-<body class="bg-white font-sans">
+<body class="bg-gray-100 font-sans">
   <!-- Header Section -->
-  <header class="sticky top-0 z-50 bg-white shadow-md">
-    <nav class="container mx-auto flex items-center justify-between py-4 px-6">
-      <div class="text-2xl font-bold text-green-600">Brainycube CMS</div>
+  <header class="bg-gray-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center">
+        <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold text-lg mr-2">BC</div>
+        <span class="text-xl font-bold">Brainycube CMS</span>
+      </div>
       <div class="flex items-center space-x-4">
-        <a href="/" class="text-gray-700 hover:text-green-600">Back to Website</a>
-        <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Logout</button>
-      </div>
-    </nav>
-  </header>
-
-  <!-- Main CMS Section -->
-  <main class="container mx-auto px-6 py-16">
-    <!-- Dashboard Overview -->
-    <section id="dashboard" class="mb-12">
-      <h1 class="text-3xl font-bold text-center mb-8">Content Management Dashboard</h1>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Header</h2>
-          <a href="#header-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Banner</h2>
-          <a href="#banner-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">About Us</h2>
-          <a href="#about-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Why Choose</h2>
-          <a href="#why-choose-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Highlights</h2>
-          <a href="#highlights-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Services</h2>
-          <a href="#services-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Events</h2>
-          <a href="#events-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Team</h2>
-          <a href="#team-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Contact</h2>
-          <a href="#contact-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-        <div class="bg-gray-100 p-6 rounded-lg shadow-md text-center">
-          <h2 class="text-xl font-bold text-green-600 mb-2">Footer</h2>
-          <a href="#footer-cms" class="text-green-600 hover:underline">Edit</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Header CMS Section -->
-    <section id="header-cms" class="py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Header</h2>
-      <div class="bg-gray-100 p-6 rounded-lg">
-        <div class="space-y-4">
-          <input type="text" id="header-logo" placeholder="Logo Text (e.g., Brainycube)" class="w-full p-3 border rounded-lg">
-          <button onclick="updateHeader()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Header</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Banner CMS Section -->
-    <section id="banner-cms" class="py-16 bg-gray-100">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Banner</h2>
-      <div class="bg-white p-6 rounded-lg">
-        <div class="space-y-4">
-          <input type="text" id="banner-title" placeholder="Banner Title" class="w-full p-3 border rounded-lg">
-          <input type="text" id="banner-subtitle" placeholder="Banner Subtitle" class="w-full p-3 border rounded-lg">
-          <input type="file" id="banner-image" accept="image/*" class="w-full p-3 border rounded-lg">
-          <button onclick="updateBanner()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Banner</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Us CMS Section -->
-    <section id="about-cms" class="py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage About Us</h2>
-      <div class="bg-gray-100 p-6 rounded-lg">
-        <div class="space-y-4">
-          <textarea id="about-description" placeholder="About Us Description" class="w-full p-3 border rounded-lg h-32"></textarea>
-          <input type="file" id="about-logo" accept="image/*" class="w-full p-3 border rounded-lg">
-          <input type="number" id="about-collaborators" placeholder="Collaborators" class="w-full p-3 border rounded-lg">
-          <input type="number" id="about-students" placeholder="Students and Graduates" class="w-full p-3 border rounded-lg">
-          <input type="number" id="about-projects" placeholder="Projects Completed" class="w-full p-3 border rounded-lg">
-          <input type="number" id="about-clicks" placeholder="Unique Clicks" class="w-full p-3 border rounded-lg">
-          <button onclick="updateAbout()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update About Us</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Why Choose Brainycube CMS Section -->
-    <section id="why-choose-cms" class="py-16 bg-gray-100">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Why Choose Brainycube</h2>
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold mb-6">Add New Card</h3>
-        <div class="bg-white p-6 rounded-lg">
-          <div class="space-y-4">
-            <input type="text" id="why-title" placeholder="Card Title" class="w-full p-3 border rounded-lg">
-            <input type="text" id="why-icon" placeholder="FontAwesome Icon (e.g., fa-users)" class="w-full p-3 border rounded-lg">
-            <textarea id="why-description" placeholder="Description" class="w-full p-3 border rounded-lg h-32"></textarea>
-            <button onclick="addWhyChoose()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Card</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold mb-6">Card List</h3>
-        <div id="why-choose-list" class="grid grid-cols-1 md:grid-cols-4 gap-8"></div>
-      </div>
-    </section>
-
-    <!-- Highlights CMS Section -->
-    <section id="highlights-cms" class="py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Highlights</h2>
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold mb-6">Add New Highlight Image</h3>
-        <div class="bg-gray-100 p-6 rounded-lg">
-          <div class="space-y-4">
-            <input type="file" id="highlight-image" accept="image/*" class="w-full p-3 border rounded-lg">
-            <button onclick="addHighlight()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Highlight</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold mb-6">Highlight List</h3>
-        <div id="highlight-list" class="flex overflow-x-auto space-x-4"></div>
-      </div>
-    </section>
-
-    <!-- Services CMS Section -->
-    <section id="services-cms" class="py-16 bg-gray-100">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Services</h2>
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold mb-6">Add New Service</h3>
-        <div class="bg-white p-6 rounded-lg">
-          <div class="space-y-4">
-            <input type="text" id="service-title" placeholder="Service Title" class="w-full p-3 border rounded-lg">
-            <input type="text" id="service-icon" placeholder="FontAwesome Icon (e.g., fa-flask)" class="w-full p-3 border rounded-lg">
-            <textarea id="service-description" placeholder="Description" class="w-full p-3 border rounded-lg h-32"></textarea>
-            <button onclick="addService()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Service</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold mb-6">Service List</h3>
-        <div id="service-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-      </div>
-      <div class="mt-12">
-        <h3 class="text-2xl font-bold mb-6">Additional Services</h3>
-        <div class="bg-white p-6 rounded-lg">
-          <textarea id="additional-services" placeholder="Additional Services (e.g., Scientific Event Management, Web Development)" class="w-full p-3 border rounded-lg h-32"></textarea>
-          <button onclick="updateAdditionalServices()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Additional Services</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Events CMS Section -->
-    <section id="events-cms" class="py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Events</h2>
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold mb-6">Add New Event</h3>
-        <div class="bg-gray-100 p-6 rounded-lg">
-          <div class="space-y-4">
-            <input type="text" id="event-title" placeholder="Event Title" class="w-full p-3 border rounded-lg">
-            <select id="event-year" class="w-full p-3 border rounded-lg">
-              <option value="2014">2014</option>
-              <option value="2016">2016</option>
-              <option value="2017">2017</option>
-              <option value="2018">2018</option>
-              <option value="2019">2019</option>
-            </select>
-            <input type="file" id="event-image" accept="image/*" class="w-full p-3 border rounded-lg">
-            <button onclick="addEvent()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Event</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold mb-6">Event List</h3>
-        <div id="event-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"></div>
-      </div>
-    </section>
-
-    <!-- Team Members CMS Section -->
-    <section id="team-cms" class="py-16 bg-gray-100">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Team Members</h2>
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold mb-6">Add New Team Member</h3>
-        <div class="bg-white p-6 rounded-lg">
-          <div class="space-y-4">
-            <input type="text" id="team-name" placeholder="Name" class="w-full p-3 border rounded-lg">
-            <input type="text" id="team-title" placeholder="Title (e.g., Co-founder)" class="w-full p-3 border rounded-lg">
-            <textarea id="team-bio" placeholder="Short Bio" class="w-full p-3 border rounded-lg h-32"></textarea>
-            <input type="file" id="team-image" accept="image/*" class="w-full p-3 border rounded-lg">
-            <input type="text" id="team-linkedin" placeholder="LinkedIn URL" class="w-full p-3 border rounded-lg">
-            <input type="text" id="team-github" placeholder="GitHub URL" class="w-full p-3 border rounded-lg">
-            <button onclick="addTeamMember()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Add Team Member</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-2xl font-bold mb-6">Team Member List</h3>
-        <div id="team-list" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-      </div>
-    </section>
-
-    <!-- Contact CMS Section -->
-    <section id="contact-cms" class="py-16">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Contact</h2>
-      <div class="bg-gray-100 p-6 rounded-lg">
-        <div class="space-y-4">
-          <input type="text" id="contact-location" placeholder="Location (e.g., Kathmandu, Nepal)" class="w-full p-3 border rounded-lg">
-          <input type="email" id="contact-email" placeholder="Email" class="w-full p-3 border rounded-lg">
-          <input type="tel" id="contact-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg">
-          <button onclick="updateContact()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Contact</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer CMS Section -->
-    <section id="footer-cms" class="py-16 bg-gray-100">
-      <h2 class="text-3xl font-bold text-center mb-12 border-b-4 border-green-600 inline-block">Manage Footer</h2>
-      <div class="bg-white p-6 rounded-lg">
-        <div class="space-y-4">
-          <input type="text" id="footer-address" placeholder="Address (e.g., Kathmandu, Nepal)" class="w-full p-3 border rounded-lg">
-          <input type="email" id="footer-email" placeholder="Email" class="w-full p-3 border rounded-lg">
-          <input type="tel" id="footer-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg">
-          <input type="text" id="footer-linkedin" placeholder="LinkedIn URL" class="w-full p-3 border rounded-lg">
-          <input type="text" id="footer-github" placeholder="GitHub URL" class="w-full p-3 border rounded-lg">
-          <input type="text" id="footer-twitter" placeholder="Twitter URL" class="w-full p-3 border rounded-lg">
-          <button onclick="updateFooter()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Update Footer</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer Section -->
-  <footer class="bg-gray-800 text-white py-12">
-    <div class="container mx-auto px-6">
-      <div class="text-center">
-        <p>© 2025 Brainycube Research Organization. All rights reserved.</p>
+        <span class="text-sm">Welcome, Admin</span> <!-- TODO: Display actual user name/email -->
+        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm">
+          <i class="fas fa-sign-out-alt mr-1"></i> Logout
+        </button>
       </div>
     </div>
-  </footer>
+  </header>
+
+  <!-- Main Container -->
+  <!-- Removed h-screen and overflow-hidden from this container -->
+  <div class="flex">
+    <!-- Sidebar Navigation -->
+    <!-- Added overflow-y-auto -->
+    <aside class="sidebar w-64 bg-white shadow-md transform -translate-x-full md:translate-x-0 z-40 overflow-y-auto">
+      <div class="p-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Website Sections</h3>
+        <nav>
+          <ul class="space-y-2">
+            <li>
+              <button onclick="showSection('dashboard')" class="w-full text-left px-4 py-2 bg-green-100 text-green-700 rounded-md flex items-center">
+                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('header-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-heading mr-2"></i> Header
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('banner-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-image mr-2"></i> Banner
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('about-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-info-circle mr-2"></i> About Us
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('why-choose-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-star mr-2"></i> Why Choose
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('highlights-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-images mr-2"></i> Highlights
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('services-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-cogs mr-2"></i> Services
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('events-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-calendar-alt mr-2"></i> Events
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('team-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-users mr-2"></i> Team
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('contact-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-envelope mr-2"></i> Contact
+              </button>
+            </li>
+            <li>
+              <button onclick="showSection('footer-cms')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md flex items-center">
+                <i class="fas fa-shoe-prints mr-2"></i> Footer
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="md:hidden fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-full shadow-lg z-50" id="sidebarToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Area -->
+    <main class="content-area flex-1 p-4 overflow-y-auto">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-green-50 p-6 rounded-lg">
+            <div class="flex items-center">
+              <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                <i class="fas fa-file-alt text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-600">Total Sections</p>
+                <p class="text-2xl font-bold text-gray-800">10</p> <!-- Static count, update if more sections are added -->
+              </div>
+            </div>
+          </div>
+          <div class="bg-blue-50 p-6 rounded-lg">
+            <div class="flex items-center">
+              <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                <i class="fas fa-users text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-600">Team Members</p>
+                <p class="text-2xl font-bold text-gray-800" id="team-count">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-purple-50 p-6 rounded-lg">
+            <div class="flex items-center">
+              <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                <i class="fas fa-calendar-check text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-600">Total Events</p>
+                <p class="text-2xl font-bold text-gray-800" id="event-count">0</p>
+              </div>
+            </div>
+          </div>
+           <!-- Example: Add another card for Why Choose count -->
+           <div class="bg-yellow-50 p-6 rounded-lg">
+            <div class="flex items-center">
+              <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                <i class="fas fa-star text-xl"></i>
+              </div>
+              <div>
+                <p class="text-gray-600">Why Choose Cards</p>
+                <p class="text-2xl font-bold text-gray-800" id="why-choose-count">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button onclick="showSection('banner-cms')" class="bg-white hover:bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col items-center">
+              <i class="fas fa-image text-green-500 text-2xl mb-2"></i>
+              <span class="text-sm">Edit Banner</span>
+            </button>
+            <button onclick="showSection('events-cms')" class="bg-white hover:bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col items-center">
+              <i class="fas fa-calendar-alt text-blue-500 text-2xl mb-2"></i>
+              <span class="text-sm">Manage Events</span>
+            </button>
+            <button onclick="showSection('team-cms')" class="bg-white hover:bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col items-center">
+              <i class="fas fa-user-plus text-purple-500 text-2xl mb-2"></i>
+              <span class="text-sm">Manage Team</span>
+            </button>
+            <button onclick="showSection('highlights-cms')" class="bg-white hover:bg-gray-100 p-4 rounded-lg shadow-sm flex flex-col items-center">
+              <i class="fas fa-camera text-yellow-500 text-2xl mb-2"></i>
+              <span class="text-sm">Manage Highlights</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Header CMS Section -->
+      <section id="header-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Header Settings</h2>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Logo Text</label>
+            <input type="text" id="header-logo" placeholder="Logo Text (e.g., Brainycube)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div class="flex justify-end">
+            <button onclick="updateHeader()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update Header</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Banner CMS Section -->
+      <section id="banner-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Banner Settings</h2>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Banner Image</label>
+            <div class="flex items-center">
+              <input type="file" id="banner-image" accept="image/*" class="hidden">
+              <button type="button" onclick="document.getElementById('banner-image').click()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-l-md border border-gray-300">Choose File</button>
+              <input type="text" id="banner-image-name" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-md" placeholder="No file chosen" readonly>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">Recommended size: 1920x600px</p>
+            <div class="mt-4">
+              <img id="banner-image-preview" src="https://via.placeholder.com/1920x600" alt="Banner Preview" class="max-w-full h-auto rounded-lg shadow image-upload-preview">
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Banner Title</label>
+            <input type="text" id="banner-title" placeholder="Banner Title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Banner Subtitle</label>
+            <input type="text" id="banner-subtitle" placeholder="Banner Subtitle" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div class="flex justify-end">
+            <button onclick="updateBanner()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update Banner</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Us CMS Section -->
+      <section id="about-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">About Us Content</h2>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Description</label>
+            <!-- Basic Rich Text Editor Toolbar (client-side HTML) -->
+            <div class="editor-toolbar">
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="document.execCommand('bold', false, null);"><i class="fas fa-bold"></i></button>
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="document.execCommand('italic', false, null);"><i class="fas fa-italic"></i></button>
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="document.execCommand('underline', false, null);"><i class="fas fa-underline"></i></button>
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="document.execCommand('insertUnorderedList', false, null);"><i class="fas fa-list-ul"></i></button>
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="document.execCommand('insertOrderedList', false, null);"><i class="fas fa-list-ol"></i></button>
+                <!-- Simple link button - needs prompt for URL -->
+                <button type="button" class="p-1 hover:bg-gray-200 rounded" onclick="const url = prompt('Enter URL:'); if(url) document.execCommand('createLink', false, url);"><i class="fas fa-link"></i></button>
+            </div>
+            <div id="about-description" class="editor-content" contenteditable="true"></div>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Logo Image</label>
+            <div class="flex items-center">
+              <input type="file" id="about-logo" accept="image/*" class="hidden">
+              <button type="button" onclick="document.getElementById('about-logo').click()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-l-md border border-gray-300">Choose File</button>
+              <input type="text" id="about-logo-name" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-md" placeholder="No file chosen" readonly>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">Recommended size: 300x300px</p>
+            <div class="mt-4">
+              <img id="about-logo-preview" src="https://via.placeholder.com/300" alt="Logo Preview" class="w-32 h-32 rounded-full shadow image-upload-preview">
+            </div>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Statistics</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Collaborators</label>
+              <input type="number" id="about-collaborators" placeholder="Collaborators" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Students & Graduates</label>
+              <input type="number" id="about-students" placeholder="Students and Graduates" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Projects Completed</label>
+              <input type="number" id="about-projects" placeholder="Projects Completed" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Unique Clicks</label>
+              <input type="number" id="about-clicks" placeholder="Unique Clicks" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button onclick="updateAbout()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update About Us</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Choose Brainycube CMS Section -->
+      <section id="why-choose-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Why Choose Brainycube</h2>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Add/Edit Card</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="space-y-4">
+              <input type="hidden" id="why-id">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Card Title</label>
+                <input type="text" id="why-title" placeholder="Card Title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">FontAwesome Icon Class</label>
+                <input type="text" id="why-icon" placeholder="FontAwesome Icon Class (e.g., fa-users, fa-flask)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                 <p class="text-sm text-gray-500 mt-1">Find icons at <a href="https://fontawesome.com/search" target="_blank" class="text-blue-500 hover:underline">fontawesome.com</a></p>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Description</label>
+                <textarea id="why-description" placeholder="Description" class="w-full px-4 py-2 border border-gray-300 rounded-md h-24 focus:ring-green-500 focus:border-green-500"></textarea>
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button onclick="clearWhyForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-md">Clear</button>
+                <button onclick="addOrUpdateWhyChoose()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Save Card</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Card List (Drag to reorder)</h3>
+          <!-- Added data-id for drag/drop -->
+          <div id="why-choose-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" ondragover="dragOver(event)" ondrop="drop(event, 'why_choose')" ondragstart="dragStart(event)">
+            <!-- Cards will be rendered here by JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Highlights CMS Section -->
+      <section id="highlights-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Highlights Management</h2>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Add/Edit Highlight Image</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="space-y-4">
+              <input type="hidden" id="highlight-id">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Image</label>
+                <div class="flex items-center">
+                  <input type="file" id="highlight-image" accept="image/*" class="hidden">
+                  <button type="button" onclick="document.getElementById('highlight-image').click()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-l-md border border-gray-300">Choose File</button>
+                  <input type="text" id="highlight-image-name" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-md" placeholder="No file chosen" readonly>
+                </div>
+                <div class="mt-4">
+                  <img id="highlight-image-preview" src="" alt="Preview" class="image-upload-preview max-w-full h-auto rounded">
+                </div>
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button onclick="clearHighlightForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-md">Clear</button>
+                <button onclick="addOrUpdateHighlight()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Save Highlight</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Highlight List (Drag to reorder)</h3>
+           <!-- Added data-id for drag/drop -->
+          <div id="highlight-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" ondragover="dragOver(event)" ondrop="drop(event, 'highlight')" ondragstart="dragStart(event)">
+             <!-- Highlights will be rendered here by JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Services CMS Section -->
+      <section id="services-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Services Management</h2>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Add/Edit Service</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="space-y-4">
+              <input type="hidden" id="service-id">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Service Title</label>
+                <input type="text" id="service-title" placeholder="Service Title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+              </div>
+               <div>
+                <label class="block text-gray-700 font-medium mb-2">FontAwesome Icon Class</label>
+                <input type="text" id="service-icon" placeholder="FontAwesome Icon Class (e.g., fa-flask, fa-lightbulb)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                 <p class="text-sm text-gray-500 mt-1">Find icons at <a href="https://fontawesome.com/search" target="_blank" class="text-blue-500 hover:underline">fontawesome.com</a></p>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Description</label>
+                <textarea id="service-description" placeholder="Description" class="w-full px-4 py-2 border border-gray-300 rounded-md h-24 focus:ring-green-500 focus:border-green-500"></textarea>
+              </div>
+              <div class="flex justify-end space-x-4">
+                <button onclick="clearServiceForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-md">Clear</button>
+                <button onclick="addOrUpdateService()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Save Service</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Service List (Drag to reorder)</h3>
+           <!-- Added data-id for drag/drop -->
+          <div id="service-list" class="grid grid-cols-1 md:grid-cols-3 gap-6" ondragover="dragOver(event)" ondrop="drop(event, 'service')" ondragstart="dragStart(event)">
+            <!-- Services will be rendered here by JavaScript -->
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Additional Services</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Additional Services Text</label>
+                <textarea id="additional-services" placeholder="Additional Services (e.g., Scientific Event Management, Web Development)" class="w-full px-4 py-2 border border-gray-300 rounded-md h-24 focus:ring-green-500 focus:border-green-500"></textarea>
+                 <p class="text-sm text-gray-500 mt-1">Enter as a comma-separated list or full paragraph.</p>
+              </div>
+              <div class="flex justify-end">
+                <button onclick="updateAdditionalServices()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update Additional Services</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Events CMS Section -->
+      <section id="events-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Events Management</h2>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Add/Edit Event</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Event Image</label>
+                  <div class="flex items-center">
+                    <input type="file" id="event-image" accept="image/*" class="hidden">
+                    <button type="button" onclick="document.getElementById('event-image').click()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-l-md border border-gray-300">Choose File</button>
+                    <input type="text" id="event-image-name" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-md" placeholder="No file chosen" readonly>
+                  </div>
+                  <div class="mt-4">
+                    <img id="event-image-preview" src="" alt="Preview" class="image-upload-preview max-w-full h-auto rounded">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <input type="hidden" id="event-id">
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Event Title</label>
+                  <input type="text" id="event-title" placeholder="Event Title" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Year</label>
+                  <select id="event-year" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                    <!-- Dynamically generate years or keep static -->
+                    <option value="2014">2014</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                     <option value="2024">2024</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end mt-4 space-x-4">
+              <button onclick="clearEventForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-md">Clear</button>
+              <button onclick="addOrUpdateEvent()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Save Event</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Event List (Drag to reorder)</h3>
+           <!-- Added data-id for drag/drop -->
+          <div id="event-list" class="grid grid-cols-1 md:grid-cols-3 gap-6" ondragover="dragOver(event)" ondrop="drop(event, 'event')" ondragstart="dragStart(event)">
+            <!-- Events will be rendered here by JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Members CMS Section -->
+      <section id="team-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Team Members Management</h2>
+        <div class="mb-8">
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Add/Edit Team Member</h3>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Profile Image</label>
+                  <div class="flex items-center">
+                    <input type="file" id="team-image" accept="image/*" class="hidden">
+                    <button type="button" onclick="document.getElementById('team-image').click()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-l-md border border-gray-300">Choose File</button>
+                    <input type="text" id="team-image-name" class="flex-1 px-4 py-2 border border-gray-300 rounded-r-md" placeholder="No file chosen" readonly>
+                  </div>
+                  <div class="mt-4">
+                    <img id="team-image-preview" src="" alt="Preview" class="image-upload-preview w-32 h-32 object-cover rounded-full mx-auto">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <input type="hidden" id="team-id">
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Name</label>
+                  <input type="text" id="team-name" placeholder="Name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Title</label>
+                  <input type="text" id="team-title" placeholder="Title (e.g., Co-founder)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">Short Bio</label>
+                  <textarea id="team-bio" placeholder="Short Bio" class="w-full px-4 py-2 border border-gray-300 rounded-md h-24 focus:ring-green-500 focus:border-green-500"></textarea>
+                </div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">LinkedIn URL</label>
+                  <input type="text" id="team-linkedin" placeholder="LinkedIn URL" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="mb-4">
+                  <label class="block text-gray-700 font-medium mb-2">GitHub URL</label>
+                  <input type="text" id="team-github" placeholder="GitHub URL" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end mt-4 space-x-4">
+              <button onclick="clearTeamForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-md">Clear</button>
+              <button onclick="addOrUpdateTeamMember()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Save Team Member</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Team Member List (Drag to reorder)</h3>
+           <!-- Added data-id for drag/drop -->
+          <div id="team-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" ondragover="dragOver(event)" ondrop="drop(event, 'team')" ondragstart="dragStart(event)">
+            <!-- Team members will be rendered here by JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact CMS Section -->
+      <section id="contact-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Contact Settings</h2>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Location</label>
+            <input type="text" id="contact-location" placeholder="Location (e.g., Kathmandu, Nepal)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Email</label>
+            <input type="email" id="contact-email" placeholder="Email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+            <input type="tel" id="contact-phone" placeholder="Phone Number" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div class="flex justify-end">
+            <button onclick="updateContact()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update Contact</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer CMS Section -->
+      <section id="footer-cms" class="bg-white rounded-lg shadow p-6 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Footer Settings</h2>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Address</label>
+            <input type="text" id="footer-address" placeholder="Address (e.g., Kathmandu, Nepal)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Email</label>
+            <input type="email" id="footer-email" placeholder="Email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+            <input type="tel" id="footer-phone" placeholder="Phone Number" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">LinkedIn URL</label>
+            <input type="text" id="footer-linkedin" placeholder="LinkedIn URL" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">GitHub URL</label>
+            <input type="text" id="footer-github" placeholder="GitHub URL" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Twitter URL</label>
+            <input type="text" id="footer-twitter" placeholder="Twitter URL" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+          </div>
+          <div class="flex justify-end">
+            <button onclick="updateFooter()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md">Update Footer</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
     // Firebase configuration (replace with your Firebase project config)
     const firebaseConfig = {
-    apiKey: "AIzaSyC6dRkg9d0xxr6VYNKvofXn7UuqUr2PMqQ",
-    authDomain: "brainycuberesearchorganization.firebaseapp.com",
-    projectId: "brainycuberesearchorganization",
-    storageBucket: "brainycuberesearchorganization.firebasestorage.app",
-    messagingSenderId: "213705503606",
-    appId: "1:213705503606:web:bffd52474b797edccfc057"
-  };
-        
+      apiKey: "AIzaSyC6dRkg9d0xxr6VYNKvofXn7UuqUr2PMqQ", // Replace with your actual config
+      authDomain: "brainycuberesearchorganization.firebaseapp.com", // Replace with your actual config
+      projectId: "brainycuberesearchorganization", // Replace with your actual config
+      storageBucket: "brainycuberesearchorganization.firebasestorage.app", // Replace with your actual config
+      messagingSenderId: "213705503606", // Replace with your actual config
+      appId: "1:213705503606:web:bffd52474b797edccfc057" // Replace with your actual config
+    };
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    // Initialize Firebase only if it hasn't been initialized
+    let firebaseApp;
+    let firebaseAuth;
+    try {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        firebaseAuth = firebaseApp.auth();
+        console.log("Firebase initialized.");
+    } catch (e) {
+        console.error("Error initializing Firebase:", e);
+        // Handle cases where Firebase config is wrong or connection fails
+        alert("Error initializing Firebase. Authentication may not work.");
+        firebaseAuth = null; // Explicitly set to null if initialization fails
+    }
+
 
     // Helper function to handle fetch requests and authentication errors
     async function fetchWithAuth(url, options = {}) {
-        // Ensure credentials (cookies) are sent with the request
-        options.credentials = 'include';  // Include cookies in the request
+      options.credentials = 'include'; // Ensure cookies are sent
 
-        try {
-            const response = await fetch(url, options);
-            if (response.status === 401) {
-                // If unauthorized, redirect to login
-                window.location.href = '/login';
-                throw new Error('Unauthorized: Redirecting to login');
-            }
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error(`Error fetching ${url}:`, error.message);
-            throw error;  // Re-throw the error for the calling function to handle
+      // Add authorization header if Firebase auth is initialized (optional, cookie is primary)
+      // const user = firebaseAuth?.currentUser;
+      // if (user) {
+      //     const token = await user.getIdToken();
+      //     options.headers = {
+      //         ...options.headers,
+      //         'Authorization': `Bearer ${token}`
+      //     };
+      // }
+
+      try {
+        const response = await fetch(url, options);
+        if (response.status === 401) {
+          console.warn(`Unauthorized access to ${url}. Redirecting to login.`);
+          window.location.href = '/login';
+          throw new Error('Unauthorized: Redirecting to login'); // Throw to stop further processing
         }
+         if (response.status === 404) {
+             console.warn(`Resource not found: ${url}`);
+             // Depending on the API, 404 might be expected for empty single items.
+             // Check the specific endpoint's Flask implementation.
+             // For GETs of single items, Flask returns empty JSON ({}) or defaults, not 404.
+             // For DELETE/PUT on non-existent items, Flask returns 404. This is handled by the caller.
+             // Let's not automatically throw for 404 here, let the caller handle it.
+         }
+        if (!response.ok) {
+           const errorText = await response.text(); // Get response body for more info
+           console.error(`HTTP error! Status: ${response.status} from ${url}. Body: ${errorText}`);
+           throw new Error(`HTTP error! Status: ${response.status} from ${url}: ${errorText}`);
+        }
+        // Check if response has content before parsing JSON
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+             return await response.json();
+        } else {
+            // Return empty object or null for non-JSON responses (e.g., successful DELETE with no body)
+            console.log(`Non-JSON response from ${url}. Content-Type: ${contentType}`);
+            return null;
+        }
+      } catch (error) {
+        console.error(`Fetch error for ${url}:`, error.message);
+        // Re-throw the error so the calling function can handle it (e.g., show alert)
+        throw error;
+      }
     }
 
     // Logout function
     function logout() {
-        fetchWithAuth('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(data => {
-            if (data.status === 'success') {
-                // Sign out from Firebase as well
-                auth.signOut().then(() => {
-                    window.location.href = '/login';
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error logging out:', error);
-            alert('Failed to log out');
+      // Sign out from Firebase client-side
+      if (firebaseAuth) {
+        firebaseAuth.signOut().catch(error => {
+          console.error('Firebase client-side sign out error:', error);
+          // Continue with server-side logout even if client sign out fails
         });
+      }
+
+      // Call server-side logout to clear the session cookie
+      fetchWithAuth('/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(() => {
+         console.log("Server-side logout successful. Redirecting.");
+         window.location.href = '/login';
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+        alert('Failed to log out: ' + error.message);
+         // Even if server logout fails, try redirecting as cookie might be cleared anyway
+         window.location.href = '/login';
+      });
     }
 
     // Helper function to convert file to base64
@@ -334,364 +771,934 @@
       });
     }
 
-    // Header Functions
-    async function updateHeader() {
-      const logo = document.getElementById('header-logo').value;
-      if (logo) {
-        try {
-            const result = await fetchWithAuth('/api/header', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ logo })
-            });
-            alert(result.message);
-        } catch (error) {
-            alert('Failed to update header: ' + error.message);
+    // Function to update file input display and preview
+    function setupFileInput(inputId, displayId, previewId) {
+      const input = document.getElementById(inputId);
+      const display = document.getElementById(displayId);
+      const preview = document.getElementById(previewId);
+      if (!input || !display || !preview) {
+          console.error(`Missing elements for file input setup: ${inputId}, ${displayId}, ${previewId}`);
+          return;
+      }
+
+      input.addEventListener('change', () => {
+        if (input.files && input.files[0]) {
+          display.value = input.files[0].name;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(input.files[0]);
+        } else {
+          display.value = 'No file chosen';
+          // Don't hide preview here if it's showing a fetched image
+          // The clear form function should handle hiding/resetting
         }
-      }
+      });
     }
 
-    // Banner Functions
-    async function updateBanner() {
-      const title = document.getElementById('banner-title').value;
-      const subtitle = document.getElementById('banner-subtitle').value;
-      const imageInput = document.getElementById('banner-image');
-      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/1920x600";
+    // Function to set image preview from a URL (used for fetching)
+    function setImagePreviewFromUrl(previewId, url, defaultSrc = '') {
+        const preview = document.getElementById(previewId);
+         if (!preview) return;
 
-      const data = { title, subtitle, image };
+        if (url && url !== 'https://via.placeholder.com/...') { // Avoid showing default placeholder unless specified
+            preview.src = url;
+            preview.style.display = 'block';
+        } else if (defaultSrc) {
+             preview.src = defaultSrc;
+             preview.style.display = 'block';
+        }
+        else {
+            preview.src = ''; // Clear src
+            preview.style.display = 'none'; // Hide preview
+        }
+    }
+
+
+    // Show Section Function - Fetches data when section is shown
+    async function showSection(sectionId) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      document.getElementById(sectionId).classList.remove('hidden');
+
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar button').forEach(button => {
+        button.classList.remove('bg-green-100', 'text-green-700');
+        button.classList.add('hover:bg-gray-100');
+      });
+      const activeButton = document.querySelector(`.sidebar button[onclick="showSection('${sectionId}')"]`);
+      if (activeButton) {
+        activeButton.classList.add('bg-green-100', 'text-green-700');
+        activeButton.classList.remove('hover:bg-gray-100');
+      }
+
+      // Close sidebar on mobile after selection
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.add('-translate-x-full'); // Hides sidebar on mobile
+
+      // --- Fetch data for the displayed section ---
       try {
-          const result = await fetchWithAuth('/api/banner', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-          });
-          alert(result.message);
+          switch (sectionId) {
+              case 'dashboard':
+                  fetchDashboardCounts(); // Fetch counts for dashboard
+                  break;
+              case 'header-cms':
+                  fetchHeader();
+                  break;
+              case 'banner-cms':
+                  fetchBanner();
+                  break;
+              case 'about-cms':
+                  fetchAbout();
+                  break;
+              case 'why-choose-cms':
+                  renderWhyChoose(); // This already fetches and renders the list
+                  clearWhyForm(); // Clear form when showing section
+                  break;
+              case 'highlights-cms':
+                  renderHighlights(); // Fetches and renders list
+                  clearHighlightForm(); // Clear form
+                  break;
+              case 'services-cms':
+                  renderServices(); // Fetches and renders regular services
+                  fetchAdditionalServices(); // Fetches and populates additional services
+                  clearServiceForm(); // Clear form
+                  break;
+              case 'events-cms':
+                  renderEvents(); // Fetches and renders list
+                  clearEventForm(); // Clear form
+                  break;
+              case 'team-cms':
+                  renderTeam(); // Fetches and renders list
+                  clearTeamForm(); // Clear form
+                  break;
+              case 'contact-cms':
+                  fetchContact();
+                  break;
+              case 'footer-cms':
+                  fetchFooter();
+                  break;
+              default:
+                  console.log(`Section ${sectionId} shown, but no fetch function defined.`);
+          }
       } catch (error) {
-          alert('Failed to update banner: ' + error.message);
+          console.error(`Error fetching data for section ${sectionId}:`, error);
+          // Error handling within fetchWithAuth should redirect on 401
+          // Other errors can be alerted or shown in a status message
       }
     }
 
-    // About Us Functions
-    async function updateAbout() {
-      const description = document.getElementById('about-description').value;
-      const logoInput = document.getElementById('about-logo');
-      const logo = logoInput.files[0] ? await fileToBase64(logoInput.files[0]) : "https://via.placeholder.com/300";
-      const collaborators = parseInt(document.getElementById('about-collaborators').value) || 0;
-      const students = parseInt(document.getElementById('about-students').value) || 0;
-      const projects = parseInt(document.getElementById('about-projects').value) || 0;
-      const clicks = parseInt(document.getElementById('about-clicks').value) || 0;
+    // Sidebar Toggle for Mobile
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('-translate-x-full');
+    });
 
-      const data = { description, logo, collaborators, students, projects, clicks };
-      try {
-          const result = await fetchWithAuth('/api/about', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-          });
-          alert(result.message);
-      } catch (error) {
-          alert('Failed to update About Us: ' + error.message);
-      }
+
+    // --- Fetch Functions for Single-Instance Sections (NEW/MODIFIED) ---
+
+    async function fetchDashboardCounts() {
+        try {
+            const teamList = await fetchWithAuth('/api/team');
+            document.getElementById('team-count').textContent = teamList ? teamList.length : 0;
+
+            const eventList = await fetchWithAuth('/api/event');
+             document.getElementById('event-count').textContent = eventList ? eventList.length : 0;
+
+            const whyChooseList = await fetchWithAuth('/api/why_choose');
+             document.getElementById('why-choose-count').textContent = whyChooseList ? whyChooseList.length : 0;
+
+        } catch (error) {
+            console.error('Failed to fetch dashboard counts:', error.message);
+            // Counts will remain 0 or previous value
+        }
     }
+
+
+    async function fetchHeader() {
+        try {
+            const headerData = await fetchWithAuth('/api/header');
+            if (headerData) {
+                 document.getElementById('header-logo').value = headerData.logo || '';
+            }
+        } catch (error) {
+            console.error('Failed to fetch Header data:', error.message);
+             alert('Failed to load Header data: ' + error.message);
+        }
+    }
+
+    async function fetchBanner() {
+        try {
+            const bannerData = await fetchWithAuth('/api/banner');
+             if (bannerData) {
+                document.getElementById('banner-title').value = bannerData.title || '';
+                document.getElementById('banner-subtitle').value = bannerData.subtitle || '';
+                // Set image preview
+                setImagePreviewFromUrl('banner-image-preview', bannerData.image);
+                 // Clear the file input name display
+                 document.getElementById('banner-image-name').value = bannerData.image ? 'Current image' : 'No file chosen';
+             }
+        } catch (error) {
+            console.error('Failed to fetch Banner data:', error.message);
+             alert('Failed to load Banner data: ' + error.message);
+        }
+    }
+
+    async function fetchAbout() {
+        try {
+            // Use the existing fetchAbout function name but implement fetching all fields
+            const aboutData = await fetchWithAuth('/api/about');
+             if (aboutData) {
+                // Set Rich Text Editor content (use innerHTML)
+                document.getElementById('about-description').innerHTML = aboutData.description || '';
+                // Set image preview
+                setImagePreviewFromUrl('about-logo-preview', aboutData.logo, 'https://via.placeholder.com/300'); // Use placeholder if no logo URL
+                // Clear the file input name display
+                document.getElementById('about-logo-name').value = aboutData.logo ? 'Current image' : 'No file chosen';
+
+                // Set stats
+                document.getElementById('about-collaborators').value = aboutData.collaborators || 0;
+                document.getElementById('about-students').value = aboutData.students || 0;
+                document.getElementById('about-projects').value = aboutData.projects || 0;
+                document.getElementById('about-clicks').value = aboutData.clicks || 0;
+             }
+        } catch (error) {
+            console.error('Failed to fetch About Us data:', error.message);
+            alert('Failed to load About Us data: ' + error.message);
+        }
+    }
+
+     async function fetchAdditionalServices() {
+        try {
+            const additionalServicesData = await fetchWithAuth('/api/additional_services');
+             if (additionalServicesData) {
+                document.getElementById('additional-services').value = additionalServicesData.additional_services || '';
+             }
+        } catch (error) {
+            console.error('Failed to fetch Additional Services data:', error.message);
+            alert('Failed to load Additional Services data: ' + error.message);
+        }
+    }
+
+
+    async function fetchContact() {
+        try {
+            const contactData = await fetchWithAuth('/api/contact');
+             if (contactData) {
+                document.getElementById('contact-location').value = contactData.location || '';
+                document.getElementById('contact-email').value = contactData.email || '';
+                document.getElementById('contact-phone').value = contactData.phone || '';
+             }
+        } catch (error) {
+            console.error('Failed to fetch Contact data:', error.message);
+            alert('Failed to load Contact data: ' + error.message);
+        }
+    }
+
+    async function fetchFooter() {
+        try {
+            const footerData = await fetchWithAuth('/api/footer');
+             if (footerData) {
+                document.getElementById('footer-address').value = footerData.address || '';
+                document.getElementById('footer-email').value = footerData.email || '';
+                document.getElementById('footer-phone').value = footerData.phone || '';
+                document.getElementById('footer-linkedin').value = footerData.linkedin || '';
+                document.getElementById('footer-github').value = footerData.github || '';
+                document.getElementById('footer-twitter').value = footerData.twitter || '';
+             }
+        } catch (error) {
+            console.error('Failed to fetch Footer data:', error.message);
+            alert('Failed to load Footer data: ' + error.message);
+        }
+    }
+
+
+    // --- Functions for Card/List Sections (MODIFIED for drag/drop) ---
 
     // Why Choose Functions
-    async function addWhyChoose() {
+    function clearWhyForm() {
+      document.getElementById('why-id').value = '';
+      document.getElementById('why-title').value = '';
+      document.getElementById('why-icon').value = '';
+      document.getElementById('why-description').value = '';
+    }
+
+    async function addOrUpdateWhyChoose() {
+      const id = document.getElementById('why-id').value;
       const title = document.getElementById('why-title').value;
       const icon = document.getElementById('why-icon').value;
       const description = document.getElementById('why-description').value;
 
-      if (title && icon && description) {
-        try {
-            const result = await fetchWithAuth('/api/why_choose', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, icon, description })
-            });
-            alert(result.message);
-            renderWhyChoose();
-            document.getElementById('why-title').value = '';
-            document.getElementById('why-icon').value = '';
-            document.getElementById('why-description').value = '';
-        } catch (error) {
-            alert('Failed to add Why Choose card: ' + error.message);
-        }
+      if (!title || !icon || !description) { // Simple validation
+          alert("Please fill in all fields for the Why Choose card.");
+          return;
       }
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/why_choose/${id}` : '/api/why_choose';
+        const result = await fetchWithAuth(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, icon, description })
+        });
+        alert(result.message);
+        renderWhyChoose(); // Re-render the list to show changes
+        clearWhyForm();    // Clear the form
+      } catch (error) {
+        alert(`Failed to ${id ? 'update' : 'add'} Why Choose card: ` + error.message);
+      }
+    }
+
+    function editWhyChoose(id, title, icon, description) {
+      document.getElementById('why-id').value = id;
+      document.getElementById('why-title').value = title;
+      document.getElementById('why-icon').value = icon;
+      document.getElementById('why-description').value = description;
+       // Scroll to the form
+       document.getElementById('why-choose-cms').querySelector('.bg-gray-50').scrollIntoView({ behavior: 'smooth' });
+    }
+
+     // Updated moveWhyChoose to call the new SQLAlchemy backend endpoint
+    async function moveWhyChoose(id, direction) {
+        try {
+            const result = await fetchWithAuth(`/api/why_choose/${id}/move`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ direction })
+            });
+            // alert(result.message); // Optional: show message
+            renderWhyChoose(); // Re-render the list to show new order
+        } catch (error) {
+            alert('Failed to move Why Choose card: ' + error.message);
+        }
     }
 
     async function renderWhyChoose() {
       try {
-          const whyChooseList = await fetchWithAuth('/api/why_choose');
-          const container = document.getElementById('why-choose-list');
-          container.innerHTML = '';
-          whyChooseList.forEach(card => {
-              const cardHtml = `
-                  <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                      <i class="fas ${card.icon} text-4xl text-green-600 mb-4"></i>
-                      <h3 class="text-xl font-bold mb-2">${card.title}</h3>
-                      <p class="text-gray-700 mb-4">${card.description}</p>
-                      <button onclick="deleteWhyChoose(${card.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
-                  </div>
-              `;
-              container.innerHTML += cardHtml;
-          });
+        // Fetch ordered list from the API
+        const whyChooseList = await fetchWithAuth('/api/why_choose');
+        const container = document.getElementById('why-choose-list');
+        container.innerHTML = ''; // Clear existing list
+        document.getElementById('why-choose-count').textContent = whyChooseList ? whyChooseList.length : 0; // Update dashboard count
+
+        if (!whyChooseList || whyChooseList.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">No Why Choose cards added yet.</p>';
+            return;
+        }
+
+        whyChooseList.forEach((card, index) => {
+          const cardHtml = `
+            <div class="bg-gray-50 p-6 rounded-lg flex flex-col justify-between" draggable="true" data-id="${card.id}" data-order="${card.order_id}">
+              <div class="flex items-start mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-4 flex-shrink-0">
+                  <i class="fas ${card.icon} text-xl"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-gray-700 font-medium mb-1">${card.title}</p>
+                  <p class="text-gray-600">${card.description}</p>
+                </div>
+              </div>
+              <div class="flex justify-end space-x-2">
+                 <!-- Moved move buttons to the main div for easier drag handle -->
+                <button onclick="editWhyChoose(${card.id}, '${escapeHTML(card.title)}', '${escapeHTML(card.icon)}', '${escapeHTML(card.description)}')" class="text-blue-500 hover:text-blue-700 text-sm">
+                  <i class="fas fa-edit mr-1"></i> Edit
+                </button>
+                <button onclick="deleteWhyChoose(${card.id})" class="text-red-500 hover:text-red-700 text-sm">
+                  <i class="fas fa-trash mr-1"></i> Delete
+                </button>
+              </div>
+               <!-- Added up/down buttons back inside for explicit clicks -->
+                <div class="flex justify-center mt-2 space-x-2">
+                    <button onclick="moveWhyChoose(${card.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-up"></i> Up
+                    </button>
+                     <button onclick="moveWhyChoose(${card.id}, 'down')" ${index === whyChooseList.length - 1 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-down"></i> Down
+                    </button>
+                </div>
+            </div>
+          `;
+          container.innerHTML += cardHtml;
+        });
+         addDragListeners('why_choose'); // Add drag listeners after rendering
       } catch (error) {
-          console.error('Failed to render Why Choose cards:', error.message);
+        console.error('Failed to render Why Choose cards:', error.message);
+         document.getElementById('why-choose-list').innerHTML = '<p class="text-red-500">Failed to load cards.</p>';
+         document.getElementById('why-choose-count').textContent = 'Error';
       }
     }
 
     async function deleteWhyChoose(id) {
-      try {
+      if (confirm('Are you sure you want to delete this card?')) {
+        try {
           const result = await fetchWithAuth(`/api/why_choose/${id}`, { method: 'DELETE' });
           alert(result.message);
-          renderWhyChoose();
-      } catch (error) {
+          renderWhyChoose(); // Re-render the list
+        } catch (error) {
           alert('Failed to delete Why Choose card: ' + error.message);
+        }
       }
     }
 
-    // Highlights Functions
-    async function addHighlight() {
-      const imageInput = document.getElementById('highlight-image');
-      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/400x200";
+     // Highlights Functions (Similar modifications for ordering and drag/drop)
+    function clearHighlightForm() {
+      document.getElementById('highlight-id').value = '';
+      document.getElementById('highlight-image').value = ''; // Clear file input value
+      document.getElementById('highlight-image-name').value = 'No file chosen';
+      setImagePreviewFromUrl('highlight-image-preview', ''); // Clear and hide preview
+    }
 
-      if (imageInput.files[0]) {
-        try {
-            const result = await fetchWithAuth('/api/highlight', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image })
-            });
-            alert(result.message);
-            renderHighlights();
-            imageInput.value = '';
-        } catch (error) {
-            alert('Failed to add Highlight: ' + error.message);
-        }
+    async function addOrUpdateHighlight() {
+      const id = document.getElementById('highlight-id').value;
+      const imageInput = document.getElementById('highlight-image');
+      const currentImageUrl = document.getElementById('highlight-image-preview').src; // Get current image URL from preview
+
+      let image = currentImageUrl; // Start with current image URL
+      if (imageInput.files && imageInput.files[0]) {
+         // If a new file is selected, use its base64
+         image = await fileToBase64(imageInput.files[0]);
+      } else if (!id && !currentImageUrl) {
+         // If adding AND no file selected AND no current image
+         alert("Please select an image for the highlight.");
+         return;
+      } else if (id && currentImageUrl.startsWith('https://via.placeholder.com')) {
+         // If updating but current preview is the placeholder
+         alert("Please select a new image for the highlight or ensure a valid image is loaded.");
+         return;
+      }
+
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/highlight/${id}` : '/api/highlight';
+        const result = await fetchWithAuth(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image })
+        });
+        alert(result.message);
+        renderHighlights(); // Re-render the list
+        clearHighlightForm(); // Clear the form
+      } catch (error) {
+        alert(`Failed to ${id ? 'update' : 'add'} Highlight: ` + error.message);
+      }
+    }
+
+    function editHighlight(id, image) {
+      document.getElementById('highlight-id').value = id;
+      setImagePreviewFromUrl('highlight-image-preview', image); // Set preview from fetched URL
+      document.getElementById('highlight-image-name').value = image ? 'Current image' : 'No file chosen'; // Update name display
+      document.getElementById('highlight-image').value = ''; // Clear file input value
+
+       // Scroll to the form
+       document.getElementById('highlights-cms').querySelector('.bg-gray-50').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function moveHighlight(id, direction) {
+      try {
+        const result = await fetchWithAuth(`/api/highlight/${id}/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ direction })
+        });
+        // alert(result.message); // Optional
+        renderHighlights(); // Re-render
+      } catch (error) {
+        alert('Failed to move Highlight: ' + error.message);
       }
     }
 
     async function renderHighlights() {
       try {
-          const highlightList = await fetchWithAuth('/api/highlight');
-          const container = document.getElementById('highlight-list');
-          container.innerHTML = '';
-          highlightList.forEach(highlight => {
-              const highlightHtml = `
-                  <div class="relative">
-                      <img src="${highlight.image}" alt="Highlight" class="rounded-lg">
-                      <button onclick="deleteHighlight(${highlight.id})" class="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"><i class="fas fa-trash"></i></button>
-                  </div>
-              `;
-              container.innerHTML += highlightHtml;
-          });
+        const highlightList = await fetchWithAuth('/api/highlight');
+        const container = document.getElementById('highlight-list');
+        container.innerHTML = ''; // Clear existing
+
+         if (!highlightList || highlightList.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">No Highlights added yet.</p>';
+            return;
+        }
+
+        highlightList.forEach((highlight, index) => {
+          const highlightHtml = `
+            <div class="border border-gray-200 rounded-lg p-4 flex flex-col" draggable="true" data-id="${highlight.id}" data-order="${highlight.order_id}">
+              <img src="${highlight.image || 'https://via.placeholder.com/300x150?text=No+Image'}" alt="Highlight" class="w-full h-32 object-cover rounded mb-2">
+              <div class="flex justify-end space-x-2 mt-auto">
+                <button onclick="editHighlight(${highlight.id}, '${escapeHTML(highlight.image)}')" class="text-blue-500 hover:text-blue-700 text-sm">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteHighlight(${highlight.id})" class="text-red-500 hover:text-red-700 text-sm">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <!-- Added up/down buttons back inside for explicit clicks -->
+              <div class="flex justify-center mt-2 space-x-2">
+                    <button onclick="moveHighlight(${highlight.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-up"></i> Up
+                    </button>
+                     <button onclick="moveHighlight(${highlight.id}, 'down')" ${index === highlightList.length - 1 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-down"></i> Down
+                    </button>
+                </div>
+            </div>
+          `;
+          container.innerHTML += highlightHtml;
+        });
+         addDragListeners('highlight'); // Add drag listeners
       } catch (error) {
-          console.error('Failed to render Highlights:', error.message);
+        console.error('Failed to render Highlights:', error.message);
+        document.getElementById('highlight-list').innerHTML = '<p class="text-red-500">Failed to load highlights.</p>';
       }
     }
 
     async function deleteHighlight(id) {
-      try {
+       if (confirm('Are you sure you want to delete this highlight?')) {
+        try {
           const result = await fetchWithAuth(`/api/highlight/${id}`, { method: 'DELETE' });
           alert(result.message);
-          renderHighlights();
-      } catch (error) {
-          alert('Failed to delete Highlight: ' + error.message);
-      }
-    }
-
-    // Services Functions
-    async function addService() {
-      const title = document.getElementById('service-title').value;
-      const icon = document.getElementById('service-icon').value;
-      const description = document.getElementById('service-description').value;
-
-      if (title && icon && description) {
-        try {
-            const result = await fetchWithAuth('/api/service', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, icon, description })
-            });
-            alert(result.message);
-            renderServices();
-            document.getElementById('service-title').value = '';
-            document.getElementById('service-icon').value = '';
-            document.getElementById('service-description').value = '';
+          renderHighlights(); // Re-render
         } catch (error) {
-            alert('Failed to add Service: ' + error.message);
+          alert('Failed to delete Highlight: ' + error.message);
         }
       }
     }
 
+    // Services Functions (Similar modifications for ordering and drag/drop)
+    function clearServiceForm() {
+      document.getElementById('service-id').value = '';
+      document.getElementById('service-title').value = '';
+      document.getElementById('service-icon').value = '';
+      document.getElementById('service-description').value = '';
+    }
+
+    async function addOrUpdateService() {
+      const id = document.getElementById('service-id').value;
+      const title = document.getElementById('service-title').value;
+      const icon = document.getElementById('service-icon').value;
+      const description = document.getElementById('service-description').value;
+
+      if (!title || !icon || !description) {
+          alert("Please fill in all fields for the service.");
+          return;
+      }
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/service/${id}` : '/api/service';
+        const result = await fetchWithAuth(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, icon, description })
+        });
+        alert(result.message);
+        renderServices(); // Re-render
+        clearServiceForm(); // Clear form
+      } catch (error) {
+        alert(`Failed to ${id ? 'update' : 'add'} Service: ` + error.message);
+      }
+    }
+
+    function editService(id, title, icon, description) {
+      document.getElementById('service-id').value = id;
+      document.getElementById('service-title').value = title;
+      document.getElementById('service-icon').value = icon;
+      document.getElementById('service-description').value = description;
+      // Scroll to the form
+       document.getElementById('services-cms').querySelector('.bg-gray-50').scrollIntoView({ behavior: 'smooth' });
+    }
+
+     async function moveService(id, direction) {
+        try {
+            const result = await fetchWithAuth(`/api/service/${id}/move`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ direction })
+            });
+            // alert(result.message); // Optional
+            renderServices(); // Re-render
+        } catch (error) {
+            alert('Failed to move Service: ' + error.message);
+        }
+    }
+
     async function renderServices() {
       try {
-          const serviceList = await fetchWithAuth('/api/service');
-          const container = document.getElementById('service-list');
-          container.innerHTML = '';
-          serviceList.forEach(service => {
-              const serviceHtml = `
-                  <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                      <i class="fas ${service.icon} text-4xl text-green-600 mb-4"></i>
-                      <h3 class="text-xl font-bold mb-2">${service.title}</h3>
-                      <p class="text-gray-700 mb-4">${service.description}</p>
-                      <button onclick="deleteService(${service.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
-                  </div>
-              `;
-              container.innerHTML += serviceHtml;
-          });
+        const serviceList = await fetchWithAuth('/api/service');
+        const container = document.getElementById('service-list');
+        container.innerHTML = ''; // Clear existing
+
+         if (!serviceList || serviceList.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">No Services added yet.</p>';
+            return;
+        }
+
+        serviceList.forEach((service, index) => {
+          const serviceHtml = `
+            <div class="bg-gray-50 p-6 rounded-lg flex flex-col justify-between" draggable="true" data-id="${service.id}" data-order="${service.order_id}">
+              <div class="flex items-start mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-4 flex-shrink-0">
+                  <i class="fas ${service.icon} text-xl"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-gray-700 font-medium mb-1">${service.title}</p>
+                  <p class="text-gray-600">${service.description}</p>
+                </div>
+              </div>
+              <div class="flex justify-end space-x-2 mt-auto">
+                 <button onclick="editService(${service.id}, '${escapeHTML(service.title)}', '${escapeHTML(service.icon)}', '${escapeHTML(service.description)}')" class="text-blue-500 hover:text-blue-700 text-sm">
+                  <i class="fas fa-edit mr-1"></i> Edit
+                </button>
+                <button onclick="deleteService(${service.id})" class="text-red-500 hover:text-red-700 text-sm">
+                  <i class="fas fa-trash mr-1"></i> Delete
+                </button>
+              </div>
+               <!-- Added up/down buttons back inside for explicit clicks -->
+                <div class="flex justify-center mt-2 space-x-2">
+                    <button onclick="moveService(${service.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-up"></i> Up
+                    </button>
+                     <button onclick="moveService(${service.id}, 'down')" ${index === serviceList.length - 1 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-down"></i> Down
+                    </button>
+                </div>
+            </div>
+          `;
+          container.innerHTML += serviceHtml;
+        });
+         addDragListeners('service'); // Add drag listeners
       } catch (error) {
-          console.error('Failed to render Services:', error.message);
+        console.error('Failed to render Services:', error.message);
+         document.getElementById('service-list').innerHTML = '<p class="text-red-500">Failed to load services.</p>';
       }
     }
 
     async function deleteService(id) {
-      try {
+      if (confirm('Are you sure you want to delete this service?')) {
+        try {
           const result = await fetchWithAuth(`/api/service/${id}`, { method: 'DELETE' });
           alert(result.message);
-          renderServices();
-      } catch (error) {
+          renderServices(); // Re-render
+        } catch (error) {
           alert('Failed to delete Service: ' + error.message);
+        }
       }
     }
 
     async function updateAdditionalServices() {
       const additionalServices = document.getElementById('additional-services').value;
-      if (additionalServices) {
-        try {
-            const result = await fetchWithAuth('/api/additional_services', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ additional_services: additionalServices })
-            });
-            alert(result.message);
-        } catch (error) {
-            alert('Failed to update Additional Services: ' + error.message);
-        }
+      if (!additionalServices) {
+           alert("Additional services text cannot be empty.");
+           return;
+      }
+      try {
+        const result = await fetchWithAuth('/api/additional_services', {
+          method: 'POST', // Use POST as it handles both create and update on the backend
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ additional_services: additionalServices })
+        });
+        alert(result.message);
+      } catch (error) {
+        alert('Failed to update Additional Services: ' + error.message);
       }
     }
 
-    // Events Functions
-    async function addEvent() {
+    // Events Functions (Similar modifications for ordering and drag/drop)
+     function clearEventForm() {
+      document.getElementById('event-id').value = '';
+      document.getElementById('event-title').value = '';
+      document.getElementById('event-year').value = new Date().getFullYear(); // Default to current year or a sensible default
+      document.getElementById('event-image').value = ''; // Clear file input value
+      document.getElementById('event-image-name').value = 'No file chosen';
+      setImagePreviewFromUrl('event-image-preview', ''); // Clear and hide preview
+    }
+
+    async function addOrUpdateEvent() {
+      const id = document.getElementById('event-id').value;
       const title = document.getElementById('event-title').value;
       const year = document.getElementById('event-year').value;
       const imageInput = document.getElementById('event-image');
-      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/300x200";
+      const currentImageUrl = document.getElementById('event-image-preview').src;
 
-      if (title && year) {
-        try {
-            const result = await fetchWithAuth('/api/event', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, year, image })
-            });
-            alert(result.message);
-            renderEvents();
-            document.getElementById('event-title').value = '';
-            document.getElementById('event-year').value = '2014';
-            imageInput.value = '';
-        } catch (error) {
-            alert('Failed to add Event: ' + error.message);
-        }
+      let image = currentImageUrl;
+       if (imageInput.files && imageInput.files[0]) {
+         image = await fileToBase64(imageInput.files[0]);
+      } else if (!id && !currentImageUrl) {
+         alert("Please select an image for the event.");
+         return;
+      } else if (id && currentImageUrl.startsWith('https://via.placeholder.com')) {
+          // If updating but current preview is the placeholder
+         alert("Please select a new image for the event or ensure a valid image is loaded.");
+         return;
+      }
+
+      if (!title || !year) {
+         alert("Please fill in the event title and year.");
+         return;
+      }
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/event/${id}` : '/api/event';
+        const result = await fetchWithAuth(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, year, image })
+        });
+        alert(result.message);
+        renderEvents(); // Re-render
+        clearEventForm(); // Clear form
+      } catch (error) {
+        alert(`Failed to ${id ? 'update' : 'add'} Event: ` + error.message);
+      }
+    }
+
+    function editEvent(id, title, year, image) {
+      document.getElementById('event-id').value = id;
+      document.getElementById('event-title').value = title;
+      document.getElementById('event-year').value = year;
+      setImagePreviewFromUrl('event-image-preview', image);
+      document.getElementById('event-image-name').value = image ? 'Current image' : 'No file chosen';
+      document.getElementById('event-image').value = ''; // Clear file input value
+
+       // Scroll to the form
+       document.getElementById('events-cms').querySelector('.bg-gray-50').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function moveEvent(id, direction) {
+      try {
+        const result = await fetchWithAuth(`/api/event/${id}/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ direction })
+        });
+        // alert(result.message); // Optional
+        renderEvents(); // Re-render
+      } catch (error) {
+        alert('Failed to move Event: ' + error.message);
       }
     }
 
     async function renderEvents() {
       try {
-          const eventList = await fetchWithAuth('/api/event');
-          const container = document.getElementById('event-list');
-          container.innerHTML = '';
-          eventList.forEach(event => {
-              const eventHtml = `
-                  <div class="bg-white p-4 rounded-lg shadow-md">
-                      <img src="${event.image}" alt="${event.title}" class="w-full h-48 object-cover rounded-lg mb-4">
-                      <h3 class="text-lg font-bold">${event.title}</h3>
-                      <p class="text-gray-700 mb-4">Year: ${event.year}</p>
-                      <button onclick="deleteEvent(${event.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
-                  </div>
-              `;
-              container.innerHTML += eventHtml;
-          });
+        const eventList = await fetchWithAuth('/api/event');
+        const container = document.getElementById('event-list');
+        container.innerHTML = ''; // Clear existing
+         document.getElementById('event-count').textContent = eventList ? eventList.length : 0; // Update dashboard count
+
+         if (!eventList || eventList.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">No Events added yet.</p>';
+            return;
+        }
+
+        eventList.forEach((event, index) => {
+          const eventHtml = `
+            <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col" draggable="true" data-id="${event.id}" data-order="${event.order_id}">
+              <div class="relative">
+                <img src="${event.image || 'https://via.placeholder.com/400x200?text=No+Image'}" alt="${escapeHTML(event.title)}" class="w-full h-40 object-cover">
+                <!-- Edit/Delete/Move buttons consolidated or placed elsewhere for cleaner look -->
+                 </div>
+              <div class="p-4 flex-grow">
+                <p class="text-gray-700 font-medium mb-1">${event.title}</p>
+                <p class="text-gray-600 text-sm">Year: ${event.year}</p>
+              </div>
+               <div class="flex justify-end space-x-2 p-4 pt-0 mt-auto">
+                  <button onclick="editEvent(${event.id}, '${escapeHTML(event.title)}', '${escapeHTML(event.year)}', '${escapeHTML(event.image)}')" class="text-blue-500 hover:text-blue-700 text-sm">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <button onclick="deleteEvent(${event.id})" class="text-red-500 hover:text-red-700 text-sm">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+                 <!-- Added up/down buttons back inside for explicit clicks -->
+                <div class="flex justify-center mt-2 space-x-2 pb-4">
+                    <button onclick="moveEvent(${event.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-up"></i> Up
+                    </button>
+                     <button onclick="moveEvent(${event.id}, 'down')" ${index === eventList.length - 1 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-down"></i> Down
+                    </button>
+                </div>
+            </div>
+          `;
+          container.innerHTML += eventHtml;
+        });
+         addDragListeners('event'); // Add drag listeners
       } catch (error) {
-          console.error('Failed to render Events:', error.message);
+        console.error('Failed to render Events:', error.message);
+         document.getElementById('event-list').innerHTML = '<p class="text-red-500">Failed to load events.</p>';
+         document.getElementById('event-count').textContent = 'Error';
       }
     }
 
     async function deleteEvent(id) {
-      try {
+       if (confirm('Are you sure you want to delete this event?')) {
+        try {
           const result = await fetchWithAuth(`/api/event/${id}`, { method: 'DELETE' });
           alert(result.message);
-          renderEvents();
-      } catch (error) {
-          alert('Failed to delete Event: ' + error.message);
-      }
-    }
-
-    // Team Members Functions
-    async function addTeamMember() {
-      const name = document.getElementById('team-name').value;
-      const title = document.getElementById('team-title').value;
-      const bio = document.getElementById('team-bio').value;
-      const imageInput = document.getElementById('team-image');
-      const image = imageInput.files[0] ? await fileToBase64(imageInput.files[0]) : "https://via.placeholder.com/150";
-      const linkedin = document.getElementById('team-linkedin').value;
-      const github = document.getElementById('team-github').value;
-
-      if (name && title && bio) {
-        try {
-            const result = await fetchWithAuth('/api/team', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, title, bio, image, linkedin, github })
-            });
-            alert(result.message);
-            renderTeam();
-            document.getElementById('team-name').value = '';
-            document.getElementById('team-title').value = '';
-            document.getElementById('team-bio').value = '';
-            imageInput.value = '';
-            document.getElementById('team-linkedin').value = '';
-            document.getElementById('team-github').value = '';
+          renderEvents(); // Re-render
         } catch (error) {
-            alert('Failed to add Team Member: ' + error.message);
+          alert('Failed to delete Event: ' + error.message);
         }
       }
     }
 
+    // Team Members Functions (Similar modifications for ordering and drag/drop)
+    function clearTeamForm() {
+      document.getElementById('team-id').value = '';
+      document.getElementById('team-name').value = '';
+      document.getElementById('team-title').value = '';
+      document.getElementById('team-bio').value = '';
+      document.getElementById('team-image').value = ''; // Clear file input value
+      document.getElementById('team-image-name').value = 'No file chosen';
+      setImagePreviewFromUrl('team-image-preview', ''); // Clear and hide preview
+      document.getElementById('team-linkedin').value = '';
+      document.getElementById('team-github').value = '';
+    }
+
+    async function addOrUpdateTeamMember() {
+      const id = document.getElementById('team-id').value;
+      const name = document.getElementById('team-name').value;
+      const title = document.getElementById('team-title').value;
+      const bio = document.getElementById('team-bio').value;
+      const imageInput = document.getElementById('team-image');
+      const currentImageUrl = document.getElementById('team-image-preview').src;
+      const linkedin = document.getElementById('team-linkedin').value;
+      const github = document.getElementById('team-github').value;
+
+      let image = currentImageUrl;
+       if (imageInput.files && imageInput.files[0]) {
+         image = await fileToBase64(imageInput.files[0]);
+      } else if (!id && !currentImageUrl) {
+         alert("Please select an image for the team member.");
+         return;
+      } else if (id && currentImageUrl.startsWith('https://via.placeholder.com')) {
+          // If updating but current preview is the placeholder
+         alert("Please select a new image for the team member or ensure a valid image is loaded.");
+         return;
+      }
+
+
+      if (!name || !title || !bio) {
+         alert("Please fill in name, title, and bio for the team member.");
+         return;
+      }
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/team/${id}` : '/api/team';
+        const result = await fetchWithAuth(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, title, bio, image, linkedin, github })
+        });
+        alert(result.message);
+        renderTeam(); // Re-render
+        clearTeamForm(); // Clear form
+      } catch (error) {
+        alert(`Failed to ${id ? 'update' : 'add'} Team Member: ` + error.message);
+      }
+    }
+
+    function editTeamMember(id, name, title, bio, image, linkedin, github) {
+      document.getElementById('team-id').value = id;
+      document.getElementById('team-name').value = name;
+      document.getElementById('team-title').value = title;
+      document.getElementById('team-bio').value = bio;
+      setImagePreviewFromUrl('team-image-preview', image);
+      document.getElementById('team-image-name').value = image ? 'Current image' : 'No file chosen';
+      document.getElementById('team-image').value = ''; // Clear file input value
+      document.getElementById('team-linkedin').value = linkedin || '';
+      document.getElementById('team-github').value = github || '';
+
+       // Scroll to the form
+       document.getElementById('team-cms').querySelector('.bg-gray-50').scrollIntoView({ behavior: 'smooth' });
+    }
+
+     async function moveTeamMember(id, direction) {
+        try {
+            const result = await fetchWithAuth(`/api/team/${id}/move`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ direction })
+            });
+            // alert(result.message); // Optional
+            renderTeam(); // Re-render
+        } catch (error) {
+            alert('Failed to move Team Member: ' + error.message);
+        }
+    }
+
+
     async function renderTeam() {
       try {
-          const teamList = await fetchWithAuth('/api/team');
-          const container = document.getElementById('team-list');
-          container.innerHTML = '';
-          teamList.forEach(member => {
-              const memberHtml = `
-                  <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                      <img src="${member.image}" alt="${member.name}" class="w-32 h-32 rounded-full mx-auto mb-4">
-                      <h3 class="text-xl font-bold mb-2">${member.name}</h3>
-                      <p class="text-gray-700 mb-2">${member.title}</p>
-                      <p class="text-gray-700 mb-4">${member.bio}</p>
-                      <div class="flex justify-center space-x-4 mb-4">
-                          <a href="${member.linkedin}" class="text-green-600"><i class="fab fa-linkedin"></i></a>
-                          <a href="${member.github}" class="text-green-600"><i class="fab fa-github"></i></a>
-                      </div>
-                      <button onclick="deleteTeamMember(${member.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">Delete</button>
-                  </div>
-              `;
-              container.innerHTML += memberHtml;
-          });
+        const teamList = await fetchWithAuth('/api/team');
+        const container = document.getElementById('team-list');
+        container.innerHTML = ''; // Clear existing
+         document.getElementById('team-count').textContent = teamList ? teamList.length : 0; // Update dashboard count
+
+         if (!teamList || teamList.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">No Team Members added yet.</p>';
+            return;
+        }
+
+        teamList.forEach((member, index) => {
+          const memberHtml = `
+            <div class="border border-gray-200 rounded-lg p-4 flex flex-col" draggable="true" data-id="${member.id}" data-order="${member.order_id}">
+              <div class="relative text-center"> <!-- Added text-center here -->
+                <img src="${member.image || 'https://via.placeholder.com/150?text=No+Image'}" alt="${escapeHTML(member.name)}" class="w-24 h-24 rounded-full mx-auto mb-3 object-cover">
+                 <!-- Move buttons can go here or below -->
+              </div>
+              <div class="text-center flex-grow"> <!-- Added text-center and flex-grow -->
+                <p class="text-gray-700 font-medium mb-1">${member.name}</p>
+                <p class="text-gray-600 text-sm mb-2">${member.title}</p>
+                <p class="text-gray-600 text-sm">${member.bio}</p>
+              </div>
+              <div class="flex justify-center space-x-4 mt-auto"> <!-- Centered and added mt-auto -->
+                  ${member.linkedin ? `<a href="${member.linkedin}" target="_blank" class="text-blue-600 hover:text-blue-800"><i class="fab fa-linkedin"></i></a>` : ''}
+                  ${member.github ? `<a href="${member.github}" target="_blank" class="text-gray-700 hover:text-gray-900"><i class="fab fa-github"></i></a>` : ''}
+              </div>
+               <div class="flex justify-center space-x-2 mt-2">
+                    <button onclick="moveTeamMember(${member.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-up"></i> Up
+                    </button>
+                     <button onclick="moveTeamMember(${member.id}, 'down')" ${index === teamList.length - 1 ? 'disabled' : ''} class="text-gray-500 enabled:hover:text-gray-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-arrow-down"></i> Down
+                    </button>
+                     <button onclick="editTeamMember(${member.id}, '${escapeHTML(member.name)}', '${escapeHTML(member.title)}', '${escapeHTML(member.bio)}', '${escapeHTML(member.image)}', '${escapeHTML(member.linkedin)}', '${escapeHTML(member.github)}')" class="text-blue-500 hover:text-blue-700 text-sm">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button onclick="deleteTeamMember(${member.id})" class="text-red-500 hover:text-red-700 text-sm">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+          `;
+          container.innerHTML += memberHtml;
+        });
+         addDragListeners('team'); // Add drag listeners
       } catch (error) {
-          console.error('Failed to render Team Members:', error.message);
+        console.error('Failed to render Team Members:', error.message);
+         document.getElementById('team-list').innerHTML = '<p class="text-red-500">Failed to load team members.</p>';
+         document.getElementById('team-count').textContent = 'Error';
       }
     }
 
     async function deleteTeamMember(id) {
-      try {
+       if (confirm('Are you sure you want to delete this team member?')) {
+        try {
           const result = await fetchWithAuth(`/api/team/${id}`, { method: 'DELETE' });
           alert(result.message);
-          renderTeam();
-      } catch (error) {
+          renderTeam(); // Re-render
+        } catch (error) {
           alert('Failed to delete Team Member: ' + error.message);
+        }
       }
     }
+
 
     // Contact Functions
     async function updateContact() {
@@ -699,16 +1706,21 @@
       const email = document.getElementById('contact-email').value;
       const phone = document.getElementById('contact-phone').value;
 
+       if (!location || !email || !phone) {
+           alert("Please fill in all contact fields.");
+           return;
+       }
+
       const data = { location, email, phone };
       try {
-          const result = await fetchWithAuth('/api/contact', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-          });
-          alert(result.message);
+        const result = await fetchWithAuth('/api/contact', {
+          method: 'POST', // Use POST as it handles both create and update
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        alert(result.message);
       } catch (error) {
-          alert('Failed to update Contact: ' + error.message);
+        alert('Failed to update Contact: ' + error.message);
       }
     }
 
@@ -721,26 +1733,237 @@
       const github = document.getElementById('footer-github').value;
       const twitter = document.getElementById('footer-twitter').value;
 
+       // Optional validation for footer fields if required
+       if (!address || !email || !phone) {
+            // alert("Please fill in required footer fields.");
+            // return; // Or allow partial updates?
+       }
+
+
       const data = { address, email, phone, linkedin, github, twitter };
       try {
-          const result = await fetchWithAuth('/api/footer', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-          });
-          alert(result.message);
+        const result = await fetchWithAuth('/api/footer', {
+          method: 'POST', // Use POST as it handles both create and update
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        alert(result.message);
       } catch (error) {
-          alert('Failed to update Footer: ' + error.message);
+        alert('Failed to update Footer: ' + error.message);
       }
     }
 
-    // Initial Render
+    // --- Drag and Drop Reordering (Optional, but based on 'move' endpoints) ---
+    let draggedItem = null;
+    let draggedContainerId = null;
+
+    function dragStart(event) {
+        draggedItem = event.target.closest('[draggable="true"]');
+        if (!draggedItem) return;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', draggedItem.dataset.id); // Pass ID
+        draggedContainerId = draggedItem.parentElement.id; // Store parent container ID
+        setTimeout(() => {
+            draggedItem.classList.add('opacity-50'); // Hide original while dragging
+        }, 0);
+         console.log('Drag started for item ID:', draggedItem.dataset.id, 'in container:', draggedContainerId);
+    }
+
+    function dragOver(event) {
+        event.preventDefault(); // Necessary to allow dropping
+        event.dataTransfer.dropEffect = 'move';
+
+         // Add visual indicator for where the item will be dropped
+         const targetContainer = event.target.closest('.grid');
+         if (!targetContainer || targetContainer.id !== draggedContainerId) {
+             // Only allow dropping within the same list type
+             return;
+         }
+
+         const targetItem = event.target.closest('[draggable="true"]');
+         if (targetItem && targetItem !== draggedItem) {
+             const container = targetItem.parentElement;
+             const items = Array.from(container.children).filter(child => child.matches('[draggable="true"]'));
+             const targetIndex = items.indexOf(targetItem);
+             const draggedIndex = items.indexOf(draggedItem);
+
+             // Determine insert position based on mouse position relative to the target item
+             const targetRect = targetItem.getBoundingClientRect();
+             const middleY = targetRect.top + targetRect.height / 2;
+
+             // Remove existing indicators
+             container.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+
+             const indicator = document.createElement('div');
+             indicator.classList.add('drag-indicator', 'bg-blue-500', 'h-1', 'my-1', 'col-span-full'); // Use col-span-full for grid layout
+
+             if (event.clientY < middleY) {
+                 // Mouse is in the top half, insert before targetItem
+                 container.insertBefore(indicator, targetItem);
+             } else {
+                 // Mouse is in the bottom half, insert after targetItem
+                 container.insertBefore(indicator, targetItem.nextSibling);
+             }
+         } else if (targetContainer && !targetItem && targetContainer.id === draggedContainerId) {
+             // Handle dropping into an empty list or after the last item
+             const items = Array.from(targetContainer.children).filter(child => child.matches('[draggable="true"]'));
+             if (items.length === 0 || (items.length === 1 && items[0] === draggedItem)) {
+                  targetContainer.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+                  const indicator = document.createElement('div');
+                  indicator.classList.add('drag-indicator', 'bg-blue-500', 'h-1', 'my-1', 'col-span-full');
+                  targetContainer.appendChild(indicator);
+             }
+         }
+    }
+
+     function dragLeave(event) {
+         // Remove indicators if drag leaves the container
+         const container = event.target.closest('.grid');
+          if (container) {
+             container.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+          }
+     }
+
+
+    async function drop(event, type) { // type is 'why_choose', 'highlight', 'service', etc.
+        event.preventDefault();
+        const dropTarget = event.target.closest('.grid'); // The grid container itself
+        if (!dropTarget || dropTarget.id !== draggedContainerId) {
+             // Ensure drop target is the same container type
+             console.warn('Dropped outside valid container.');
+             // Clean up indicator if any
+             dropTarget?.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+             draggedItem?.classList.remove('opacity-50');
+             draggedItem = null;
+             draggedContainerId = null;
+             return;
+        }
+
+        const targetItem = event.target.closest('[draggable="true"]');
+        const container = document.getElementById(draggedContainerId);
+        const items = Array.from(container.children).filter(child => child.matches('[draggable="true"]'));
+
+        // Remove indicator first
+        container.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+
+        let newIndex;
+        if (!targetItem) {
+             // Dropped into an empty list or after the last item
+             newIndex = items.length -1; // Place at the end (or 0 if empty, handled by logic below)
+             if (items.length === 0) newIndex = 0;
+        } else {
+            const targetIndex = items.indexOf(targetItem);
+            const targetRect = targetItem.getBoundingClientRect();
+            const middleY = targetRect.top + targetRect.height / 2;
+             if (event.clientY < middleY) {
+                 // Dropped in the top half, insert before target
+                 newIndex = targetIndex;
+             } else {
+                 // Dropped in the bottom half, insert after target
+                 newIndex = targetIndex + 1;
+             }
+        }
+
+        const currentItemIndex = items.indexOf(draggedItem);
+
+        if (currentItemIndex === newIndex || (currentItemIndex + 1 === newIndex && newIndex > currentItemIndex)) {
+             // Item wasn't moved relative to its position, or dropped right after itself
+             console.log('Item not moved to a new position.');
+             draggedItem.classList.remove('opacity-50'); // Restore opacity
+             draggedItem = null;
+             draggedContainerId = null;
+             return;
+        }
+
+        // Calculate target ID based on the new index
+        let targetId = null;
+         if (newIndex > 0 && newIndex <= items.length) { // Check bounds carefully
+             // Get the item that will be AT the newIndex after the move
+             const itemsCopy = [...items];
+             const [moved] = itemsCopy.splice(currentItemIndex, 1);
+             itemsCopy.splice(newIndex > currentItemIndex ? newIndex -1 : newIndex, 0, moved); // Adjust index for splice if moving down
+
+             if (newIndex < itemsCopy.length) {
+                  targetId = itemsCopy[newIndex].dataset.id; // The item currently at the desired position
+             } else {
+                 // Dropped at the very end
+                 targetId = null; // Or handle this case specifically if needed
+             }
+         }
+
+
+        // Simulate the move by swapping in the list first for visual feedback
+         container.insertBefore(draggedItem, targetItem ? (event.clientY < targetItem.getBoundingClientRect().top + targetItem.getBoundingClientRect().height / 2 ? targetItem : targetItem.nextSibling) : null);
+
+        // Now call the backend API to update the order
+        console.log(`Attempting to move item ${draggedItem.dataset.id} (${type}) to index ${newIndex}`);
+
+        // We need to tell the backend *where* to move the item.
+        // The Flask move endpoint expects a direction ('up'/'down').
+        // Drag and drop needs a different approach, like sending the new order of IDs
+        // OR calling 'move' repeatedly, OR sending the target position.
+
+        // --- Alternative Approach for D&D: Send the new sequence ---
+        // Let's refactor the drag/drop logic to send the new order of IDs to a new endpoint.
+        // This is more robust for drag and drop.
+        // Requires a new backend endpoint like POST /api/{type}/reorder { ids: [id1, id2, id3, ...] }
+
+        // For now, let's disable drag/drop and rely *only* on the up/down buttons
+        // as the backend currently only supports up/down moves.
+        // Implementing D&D properly requires a change in the backend API.
+        // Keep the move functions but remove drag/drop listeners and attributes.
+        console.warn("Drag and Drop is disabled because the backend only supports 'up'/'down' moves.");
+        console.warn("To enable Drag and Drop, a new backend endpoint is needed to accept a list of item IDs in the new order.");
+
+        draggedItem.classList.remove('opacity-50'); // Restore opacity
+        draggedItem = null;
+        draggedContainerId = null;
+    }
+
+    // Function to add drag listeners to items within a container after rendering
+    function addDragListeners(type) {
+        const container = document.getElementById(`${type}-list`);
+        if (!container) return;
+
+        // Add event listeners to the container for drag events
+        container.removeEventListener('dragstart', dragStart); // Prevent duplicates
+        container.removeEventListener('dragover', dragOver);
+        container.removeEventListener('dragleave', dragLeave);
+        container.removeEventListener('drop', (e) => drop(e, type)); // Use a wrapper to pass type
+
+        // Temporarily disable drag/drop as backend only supports up/down buttons
+        // container.addEventListener('dragstart', dragStart);
+        // container.addEventListener('dragover', dragOver);
+        // container.addEventListener('dragleave', dragLeave);
+        // container.addEventListener('drop', (e) => drop(e, type));
+
+        // Set draggable="true" on the individual items by JavaScript if not in HTML
+         container.querySelectorAll('.flex-col').forEach(item => {
+             item.setAttribute('draggable', 'false'); // Force disable for now
+         });
+
+         // Remove any lingering drag indicators
+         container.querySelectorAll('.drag-indicator').forEach(indicator => indicator.remove());
+    }
+
+     // Helper to escape HTML for attribute values
+    function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+
+    // Initial Render and Setup
     window.onload = () => {
-      renderWhyChoose();
-      renderHighlights();
-      renderServices();
-      renderEvents();
-      renderTeam();
+      // Setup file input listeners for all relevant sections
+      setupFileInput('banner-image', 'banner-image-name', 'banner-image-preview');
+      setupFileInput('about-logo', 'about-logo-name', 'about-logo-preview');
+      setupFileInput('highlight-image', 'highlight-image-name', 'highlight-image-preview');
+      setupFileInput('event-image', 'event-image-name', 'event-image-preview');
+      setupFileInput('team-image', 'team-image-name', 'team-image-preview');
+
+      // Initially show the dashboard section and fetch its counts
+      showSection('dashboard');
     };
   </script>
 </body>
