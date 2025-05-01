@@ -15,10 +15,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', '8f4d2c9a5e7b1d3f9c0e2a8b6d4f5e7c1a3b9d2e4f6')  # Replace fallback with your generated key
 
 # Load Firebase Admin SDK credentials
-try:
-<<<<<<< HEAD
-    cred = credentials.Certificate('brainycuberesearchorganization-firebase-adminsdk-fbsvc-413acb7eda.json') # Update with your file name
-=======
+try: # Update with your file name
     # Make sure the Firebase Admin SDK JSON file is in the same directory or specify the path
     cred_path = 'brainycuberesearchorganization-firebase-adminsdk-fbsvc-413acb7eda.json'
     if not os.path.exists(cred_path):
@@ -31,7 +28,6 @@ try:
         raise FileNotFoundError(f"Firebase credentials file not found at {cred_path}")
 
     cred = credentials.Certificate(cred_path) # Update with your file name
->>>>>>> test
     firebase_admin.initialize_app(cred)
     print("Firebase Admin SDK initialized successfully.")
 except FileNotFoundError as e:
