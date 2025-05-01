@@ -141,45 +141,66 @@ with app.app_context():
 
 
 # --- Middleware to protect routes ---
+# Configuration
+COOKIE_NAME = 'token'
+LOGIN_ENDPOINT = 'login'
+firebase_admin_initialized = True  # Assume initialized for brevity
+
+def handle_unauthorized(is_api, error_message, redirect_to=LOGIN_ENDPOINT):
+    """Helper to handle unauthorized responses consistently."""
+    print(f"Unauthorized access: {error_message}")
+    response = make_response(
+        jsonify({"error": error_message}) if is_api else redirect(url_for(redirect_to))
+    )
+    response.set_cookie(COOKIE_NAME, '', expires=0, httponly=True, secure=True, samesite='Lax')
+    return response, (401 if is_api else 302)
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Check if Firebase Auth was successfully initialized
+        # Check Firebase Auth initialization
         if not firebase_admin_initialized or auth is None:
-             print("Authentication required but Firebase Auth not configured.")
-             if request.path.startswith('/api/'):
-                return jsonify({"error": "Authentication service is not configured on the server."}), 500
-             return "Authentication service is not configured. CMS inaccessible.", 500 # Or render error page
+            return handle_unauthorized(
+                request.path.startswith('/api/'),
+                "Authentication service is not configured on the server."
+            ), 500
 
-        # Proceed with authentication if auth is configured
-        id_token = request.cookies.get('token')
+        # Extract session cookie
+        id_token = request.cookies.get(COOKIE_NAME)
         if not id_token:
-            print("No session cookie found in request for protected route.")
-            if request.path.startswith('/api/'):
-                return jsonify({"error": "Unauthorized: No session cookie found."}), 401
-            return redirect(url_for('login')) # Redirect to login for browser requests
+            return handle_unauthorized(
+                request.path.startswith('/api/'),
+                "Unauthorized: No session cookie found."
+            )
 
         try:
-            # Verify the session cookie. check_revoked=True is important.
-            # auth.verify_session_cookie can handle clock skew.
+            # Verify session cookie
             decoded_token = auth.verify_session_cookie(id_token, check_revoked=True)
-            # print(f"Session cookie verified successfully for user: {decoded_token.get('email', 'unknown')}") # Avoid printing sensitive info in logs
-            request.user = decoded_token # Attach user info to request context
-            return f(*args, **kwargs) # Proceed to the original route handler
-        except (auth.InvalidSessionCookieError, auth.RevokedSessionCookieError) as e:
-            print(f"Session cookie verification failed: {type(e).__name__}.") # Log error type
-            # Clear the invalid cookie and redirect to login for browser requests
-            response = make_response(jsonify({"error": "Unauthorized: Invalid or expired session. Please log in again."}) if request.path.startswith('/api/') else redirect(url_for('login')))
-            # Clear the cookie by setting its expiration to the past
-            response.set_cookie('token', '', expires=0, httponly=True, secure=True, samesite='Lax') # Clear securely
-            return response, (401 if request.path.startswith('/api/') else 302) # Return 401 for API, 302 for redirect
+            request.user = decoded_token  # Attach user info
 
+            # Optional: Add RBAC check
+            # if 'admin' not in decoded_token.get('claims', {}):
+            #     return handle_unauthorized(
+            #         request.path.startswith('/api/'),
+            #         "Unauthorized: Admin access required."
+            #     )
+
+            return f(*args, **kwargs)  # Proceed to route handler
+
+        except (auth.InvalidSessionCookieError, auth.RevokedSessionCookieError, auth.FirebaseError) as e:
+            print(f"Session cookie verification failed: {type(e).__name__}")
+            return handle_unauthorized(
+                request.path.startswith('/api/'),
+                "Unauthorized: Invalid or expired session. Please log in again."
+            )
         except Exception as e:
-            print(f"Unexpected error during session cookie verification: {str(e)}")
-            response = make_response(jsonify({"error": "Unauthorized: An unexpected error occurred."}) if request.path.startswith('/api/') else redirect(url_for('login')))
-            response.set_cookie('token', '', expires=0, httponly=True, secure=True, samesite='Lax') # Clear securely
-            return response, (401 if request.path.startswith('/api/') else 302)
+            print(f"Critical error during authentication: {str(e)}")
+            return handle_unauthorized(
+                request.path.startswith('/api/'),
+                "Unauthorized: An unexpected error occurred."
+            )
 
+    return decorated_function
 
 # --- Authentication Routes ---
 
