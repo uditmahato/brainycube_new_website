@@ -30,34 +30,35 @@ if not app.secret_key:
     app.secret_key = 'super-fallback-secret-key-not-for-production-ever' # REPLACE with a long, random string for local dev if needed
 
 # --- Firebase Initialization ---
-# Initialize flags and auth instance
-firebase_admin_initialized = False
-auth = None
+# --- Firebase Initialization ---
+firebase_admin_initialized = False # <-- Flag for status
+auth = None # <-- auth instance
 
 try:
-    # Read Base64 encoded credentials from environment variable
-    firebase_credentials_base64 = os.getenv('FIREBASE_CREDENTIALS_BASE64')
+    firebase_credentials_base64 = os.getenv('FIREBASE_CREDENTIALS_BASE64') # <-- Env var name difference
     if firebase_credentials_base64:
-        # Decode the credentials string
         credentials_json_str = base64.b64decode(firebase_credentials_base64).decode('utf-8')
         cred_info = json.loads(credentials_json_str)
         cred = credentials.Certificate(cred_info)
 
-        # Check if a default Firebase app instance is already initialized
-        if not firebase_admin._apps:
+        if not firebase_admin._apps: # <-- Checks if already initialized
              firebase_admin.initialize_app(cred)
-             print("Firebase Admin SDK initialized successfully from environment variable.")
+             print("Firebase Admin SDK initialized successfully...")
         else:
-             # If running multiple times (e.g., in tests or complex local setup),
-             # use the existing app.
              print("Firebase Admin SDK already initialized.")
 
-        # Get the auth instance *after* successful initialization
-        auth = firebase_admin.auth
-        firebase_admin_initialized = True # Set flag to True on success
+        auth = firebase_admin.auth # <-- Assigns auth instance
+        firebase_admin_initialized = True # <-- Sets flag
 
     else:
-        print("FIREBASE_CREDENTIALS_BASE64 environment variable not set. Firebase Admin SDK initialization skipped.")
+        print("FIREBASE_CREDENTIALS_BASE64 environment variable not set...") # <-- Prints warning
+        # No exception raised here if the variable is just missing
+
+except Exception as e: # <-- Catches any error during this block
+    print(f"Error initializing Firebase Admin SDK...: {str(e)}") # <-- Prints the specific error
+    firebase_admin_initialized = False # Ensure flag is False on error
+    auth = None # Ensure auth is None on error
+    # No exception raised here on failure by default (can uncomment raise)
 
 except Exception as e:
     print(f"Error initializing Firebase Admin SDK from environment variable: {str(e)}")
