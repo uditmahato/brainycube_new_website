@@ -10,7 +10,7 @@ from firebase_admin import auth, credentials
 from functools import wraps
 from flask_migrate import Migrate, upgrade as migrate_upgrade
 from sqlalchemy import func
-
+print("--- app.py execution started ---") # <--- ADD THIS LINE
 # Load environment variables first
 load_dotenv()
 print("DEBUG: Loaded .env file")
