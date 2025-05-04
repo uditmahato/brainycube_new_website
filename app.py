@@ -26,24 +26,42 @@ if not os.getenv('FLASK_SECRET_KEY'):
 # --- Firebase Initialization ---
 firebase_admin_initialized = False
 auth = None
+print("DEBUG: Attempting Firebase Admin SDK Initialization...") # Start marker
 try:
     firebase_credentials_base64 = os.getenv('FIREBASE_CREDENTIALS_BASE64')
     if firebase_credentials_base64:
-        credentials_json_str = base64.b64decode(firebase_credentials_base64).decode('utf-8')
-        cred_info = json.loads(credentials_json_str)
-        cred = credentials.Certificate(cred_info)
+        print("DEBUG: FIREBASE_CREDENTIALS_BASE64 found.") # Step 1: Var exists
+        try: # --- Nested try for decoding/parsing ---
+            credentials_json_str = base64.b64decode(firebase_credentials_base64).decode('utf-8')
+            print("DEBUG: Base64 decoded successfully.") # Step 2: Decode OK
+            cred_info = json.loads(credentials_json_str)
+            # SAFE TO LOG Project ID - Helps confirm JSON parsing worked
+            print(f"DEBUG: JSON loaded successfully. Project ID: {cred_info.get('project_id')}") # Step 3: JSON Parse OK
+            cred = credentials.Certificate(cred_info)
+            print("DEBUG: credentials.Certificate object created.") # Step 4: Cred Object OK
+        except Exception as parse_error:
+            # Log specific error during parsing/decoding
+            print(f"ERROR during credential decoding/parsing: {type(parse_error).__name__} - {str(parse_error)}")
+            raise # Re-raise the error to be caught by the outer block
+
+        # --- Actual Firebase Init ---
         if not firebase_admin._apps:
+            print("DEBUG: Attempting firebase_admin.initialize_app()...") # Step 5a: Attempting Init
             firebase_admin.initialize_app(cred)
-            print("Firebase Admin SDK initialized successfully...")
+            print("DEBUG: firebase_admin.initialize_app() successful.") # Step 5b: Init OK
         else:
-            print("Firebase Admin SDK already initialized.")
-        auth = firebase_admin.auth
-        firebase_admin_initialized = True
+            print("DEBUG: Firebase Admin SDK already initialized (Skipping init).")
+
+        auth = firebase_admin.auth # Set auth object
+        firebase_admin_initialized = True # Mark as initialized
+        print("Firebase Admin SDK initialization marked as successful.") # Final Success Confirmation
     else:
-        print("FIREBASE_CREDENTIALS_BASE64 environment variable not set...")
+        # This message means the env var was empty or not found by os.getenv
+        print("ERROR: FIREBASE_CREDENTIALS_BASE64 environment variable not set or empty.")
 except Exception as e:
-    print(f"Error initializing Firebase Admin SDK: {str(e)}")
-    firebase_admin_initialized = False
+    # This catches errors from initialize_app() or errors re-raised from the nested try
+    print(f"CRITICAL ERROR initializing Firebase Admin SDK: {type(e).__name__} - {str(e)}")
+    firebase_admin_initialized = False # Ensure flags are False on any error
     auth = None
 
 # --- Database Configuration ---
