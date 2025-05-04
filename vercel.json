@@ -1,33 +1,24 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "app.py",
-        "use": "@vercel/python",
-        "config": {
-          "maxLambdaSize": "15mb",
-          "runtime": "python3.9"
-        }
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "app.py"
-      }
-    ],
-    "env": {
-      "FLASK_SECRET_KEY": "FLASK_SECRET_KEY",
-      "POSTGRES_URL": "POSTGRES_URL",
-      "FIREBASE_CREDENTIALS_BASE64": "FIREBASE_CREDENTIALS_BASE64",
-      "RUN_VERCEL_MIGRATIONS": "RUN_VERCEL_MIGRATIONS"
-    },
-    "build": {
-      "env": {
-          "FLASK_SECRET_KEY": "FLASK_SECRET_KEY",
-          "POSTGRES_URL": "POSTGRES_URL",
-          "FIREBASE_CREDENTIALS_BASE64": "FIREBASE_CREDENTIALS_BASE64",
-          "RUN_VERCEL_MIGRATIONS": "RUN_VERCEL_MIGRATIONS"
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
       }
     }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "functions": {
+    "app.py": {
+      "maxDuration": 30
+    }
   }
+}
