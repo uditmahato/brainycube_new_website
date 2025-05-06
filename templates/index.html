@@ -7,6 +7,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+<style> /* Target the highlights container specifically */
+  #highlights-container {
+    /* For Firefox */
+    scrollbar-width: none;
+    /* For Chrome, Safari, Edge (WebKit/Blink) */
+    -ms-overflow-style: none; /* For IE/Edge (older) */
+  }
+  
+  #highlights-container::-webkit-scrollbar {
+    /* Hide scrollbar for Chrome, Safari, Edge */
+    display: none;
+    width: 0; /* Optional: Set width to 0 */
+    height: 0; /* Optional: Set height to 0 */
+    background: transparent; /* Optional: Make it transparent */
+  }</style>
 <body class="bg-white font-sans">
   <!-- Header Section -->
   <header class="sticky top-0 z-50 bg-white shadow-md">
@@ -88,21 +103,71 @@
     </div>
   </section>
 
-  <!-- Highlights Section -->
-  <section id="highlights" class="py-16">
-    <div class="container mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center mb-12">Highlights</h2>
-      <div class="relative">
-        <div class="flex overflow-x-auto space-x-4">
-          {% for highlight in highlights %}
-          <img src="{{ highlight.image }}" alt="Highlight" class="rounded-lg">
-          {% endfor %}
+<!-- Highlights Section -->
+<section id="highlights" class="py-12 md:py-16"> <!-- Adjusted padding -->
+  <div class="container mx-auto px-4 sm:px-6"> <!-- Adjusted padding -->
+    <h2 class="text-3xl font-bold text-center mb-8 md:mb-12">Highlights</h2> <!-- Adjusted margin -->
+    <div class="relative group"> <!-- Added 'group' for potential button hover effects -->
+
+      <!-- This outer div will hide the overflow for a cleaner look -->
+      <div class="overflow-hidden rounded-lg">
+        <!-- This inner div will scroll, and items will snap -->
+        <!-- Added IDs and classes for JS and styling -->
+        <div id="highlights-container"
+             class="flex items-center space-x-4 snap-x snap-mandatory overflow-x-scroll scroll-smooth py-2 px-1">
+          <!--
+            'items-center' helps if images have slightly different heights.
+            'snap-x snap-mandatory' for horizontal snapping.
+            'overflow-x-scroll' to enable scrolling.
+            'scroll-smooth' for smooth scrolling via JS.
+            'py-2 px-1' to give a little breathing room if scrollbars appear.
+          -->
+
+          {% if highlights %}
+            {% for highlight in highlights %}
+            <!--
+              Each image is wrapped in a div for consistent sizing and snapping.
+              'flex-shrink-0' is important to prevent items from shrinking.
+              Define a width for each slide. This example shows 4 slides on large screens,
+              adjust 'lg:w-1/4', 'md:w-1/3', 'sm:w-1/2', 'w-4/5' as needed.
+              'w-4/5' for mobile ensures a bit of the next slide is visible, hinting at scrollability.
+            -->
+            <div class="snap-start flex-shrink-0 w-4/5 sm:w-1/2 md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-0.75rem*3/4)] rounded-lg">
+              <!--
+                w-[calc(33.333%-1rem)] -> for 3 items, account for space-x-4 (1rem). If 2 spaces, then (100% - 2rem) / 3
+                lg:w-[calc(25%-0.75rem*3/4)] -> for 4 items, account for 3 spaces. If space-x-4 (1rem), it's (100% - 3rem) / 4
+                It's often easier to set slidesPerView in JS libraries.
+                For pure CSS, you might need to adjust the parent's padding or use negative margins on the items
+                if you want perfect edge-to-edge display without gaps.
+                Simpler: lg:w-1/4 and accept small gaps or slight overflow if not using a JS lib.
+              -->
+              <img src="{{ highlight.image }}" alt="Highlight {{ loop.index }}"
+                   class="w-full h-56 sm:h-64 md:h-72 object-cover rounded-lg shadow-md">
+              <!-- Adjust height (h-56, h-64, h-72) and object-cover as needed -->
+            </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-center text-gray-500 w-full">No highlights available at the moment.</p>
+          {% endif %}
         </div>
-        <button class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-2 rounded-full"><i class="fas fa-chevron-left"></i></button>
-        <button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-green-600 text-white p-2 rounded-full"><i class="fas fa-chevron-right"></i></button>
       </div>
+
+      <!-- Navigation Buttons -->
+      {% if highlights and highlights|length > 1 %} <!-- Show buttons only if there's more than one highlight -->
+      <button id="highlight-prev"
+              aria-label="Previous highlight"
+              class="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-green-600/70 text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-green-600 focus:outline-none z-10 transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed">
+        <i class="fas fa-chevron-left fa-fw"></i> <!-- fa-fw for fixed width icon -->
+      </button>
+      <button id="highlight-next"
+              aria-label="Next highlight"
+              class="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-green-600/70 text-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-green-600 focus:outline-none z-10 transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed">
+        <i class="fas fa-chevron-right fa-fw"></i>
+      </button>
+      {% endif %}
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- Services Section -->
   <section id="services" class="py-16 bg-gray-100">
@@ -135,7 +200,14 @@
           <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2017">2017</button>
           <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2018">2018</button>
           <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2019">2019</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2020">2020</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2021">2021</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2022">2022</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2023">2023</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2024">2024</button>
+          <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-lg" data-filter="2025">2025</button>
         </div>
+        
       </div>
       <div id="event-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 gallery">
         {% for event in events %}
@@ -230,37 +302,111 @@
   </footer>
 
   <script>
-    // Mobile Menu Toggle
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      const nav = document.querySelector('nav ul');
-      nav.classList.toggle('hidden');
-    });
-
-    // Gallery Filter Functionality
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const galleryItems = document.querySelectorAll('.gallery-item');
-
-    filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const filter = button.getAttribute('data-filter');
-
-        filterButtons.forEach(btn => {
-          btn.classList.remove('bg-green-600', 'text-white');
-          btn.classList.add('bg-gray-200', 'text-gray-700');
-        });
-        button.classList.remove('bg-gray-200', 'text-gray-700');
-        button.classList.add('bg-green-600', 'text-white');
-
-        galleryItems.forEach(item => {
-          const itemYear = item.getAttribute('data-year');
-          if (filter === 'all' || itemYear === filter) {
-            item.style.display = 'block';
-          } else {
-            item.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Mobile Menu Toggle ---
+        const menuToggleButton = document.getElementById('menu-toggle');
+        if (menuToggleButton) {
+            menuToggleButton.addEventListener('click', () => {
+                const navUl = document.querySelector('nav ul'); // Assuming 'nav ul' is the correct selector for your mobile menu
+                if (navUl) {
+                    navUl.classList.toggle('hidden');
+                } else {
+                    console.error('Mobile navigation UL not found.');
+                }
+            });
+        } else {
+            // console.warn('Menu toggle button (#menu-toggle) not found.'); // Optional: log if not present
+        }
+    
+        // --- Gallery Filter Functionality ---
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const galleryItems = document.querySelectorAll('.gallery-item');
+    
+        if (filterButtons.length > 0 && galleryItems.length > 0) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.getAttribute('data-filter');
+    
+                    // Update button active states
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-green-600', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700'); // Default state
+                    });
+                    button.classList.remove('bg-gray-200', 'text-gray-700');
+                    button.classList.add('bg-green-600', 'text-white'); // Active state
+    
+                    // Filter gallery items
+                    galleryItems.forEach(item => {
+                        const itemYear = item.getAttribute('data-year');
+                        if (filter === 'all' || itemYear === filter) {
+                            item.style.display = 'block'; // Or your preferred display type like 'flex', 'grid'
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        } else {
+            // console.warn('Filter buttons or gallery items not found. Gallery filter will not work.'); // Optional
+        }
+    
+        // --- Highlights Carousel Functionality ---
+        const highlightsContainer = document.getElementById('highlights-container');
+        const prevButton = document.getElementById('highlight-prev');
+        const nextButton = document.getElementById('highlight-next');
+    
+        if (highlightsContainer && prevButton && nextButton) {
+            const slides = highlightsContainer.querySelectorAll('.snap-start'); // Get all slide divs
+    
+            if (slides.length <= 1) { // If 0 or 1 slide, hide/disable buttons appropriately
+                prevButton.style.display = 'none'; // Or prevButton.disabled = true; prevButton.classList.add('hidden');
+                nextButton.style.display = 'none'; // Or nextButton.disabled = true; nextButton.classList.add('hidden');
+            } else {
+                let currentScroll = highlightsContainer.scrollLeft;
+                let maxScroll = highlightsContainer.scrollWidth - highlightsContainer.clientWidth;
+    
+                function updateButtonStates() {
+                    currentScroll = highlightsContainer.scrollLeft;
+                    maxScroll = highlightsContainer.scrollWidth - highlightsContainer.clientWidth;
+    
+                    prevButton.disabled = currentScroll <= 1; // Allow for slight subpixel issues
+                    nextButton.disabled = currentScroll >= maxScroll - 1;
+                    // console.log(`Scroll: ${currentScroll}, MaxScroll: ${maxScroll}, Prev: ${prevButton.disabled}, Next: ${nextButton.disabled}`);
+                }
+    
+                prevButton.addEventListener('click', function() {
+                    let targetScroll = 0;
+                    for (let i = slides.length - 1; i >= 0; i--) {
+                        const slideLeft = slides[i].offsetLeft - highlightsContainer.offsetLeft;
+                        if (slideLeft < currentScroll - 1) {
+                            targetScroll = slideLeft;
+                            break;
+                        }
+                    }
+                    highlightsContainer.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                });
+    
+                nextButton.addEventListener('click', function() {
+                    let targetScroll = maxScroll;
+                    for (let i = 0; i < slides.length; i++) {
+                        const slideLeft = slides[i].offsetLeft - highlightsContainer.offsetLeft;
+                        if (slideLeft > currentScroll + 1) {
+                            targetScroll = slideLeft;
+                            break;
+                        }
+                    }
+                    highlightsContainer.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                });
+    
+                highlightsContainer.addEventListener('scroll', updateButtonStates, { passive: true }); // Use passive listener for scroll
+                window.addEventListener('resize', updateButtonStates);
+                updateButtonStates(); // Initial state update
+            }
+        } else {
+            // console.warn('Highlight slider elements (container, prev, or next button) not found.'); // Optional
+        }
+    
+    }); // End of DOMContentLoaded
+    </script>
 </body>
 </html>

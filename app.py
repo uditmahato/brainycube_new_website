@@ -906,6 +906,7 @@ def update_additional_services():
 @app.route('/api/event', methods=['POST'])
 @login_required
 def add_event():
+    data= request.json
     if db is None: return jsonify({"error": "Database not configured."}), 500
     # Ensure order_id exists before using func.max
     if hasattr(Event, 'order_id'):
@@ -1011,11 +1012,16 @@ def move_event(id):
 
 
 # TeamMember Add (POST)
+# TeamMember Add (POST)
 @app.route('/api/team', methods=['POST'])
 @login_required
 def add_team_member():
     if db is None: return jsonify({"error": "Database not configured."}), 500
-     # Ensure order_id exists before using func.max
+    data = request.json # <--- THIS LINE IS NEEDED HERE
+    if not data: # Good practice to check if JSON payload is present
+        return jsonify({"error": "Invalid JSON payload or missing Content-Type header."}), 400
+
+    # Ensure order_id exists before using func.max
     if hasattr(TeamMember, 'order_id'):
         # Get the maximum current order_id and add 1 for the new item
         max_order = db.session.query(func.max(TeamMember.order_id)).scalar() or 0
@@ -1023,43 +1029,57 @@ def add_team_member():
     else:
         new_order_id = 0 # Default if ordering is not enabled
 
-    team_member = TeamMember(
-        name=data.get('name', ''),
-        title=data.get('title', ''),
-        bio=data.get('bio', ''),
-        image=data.get('image', ''),
-        linkedin=data.get('linkedin', None), # Use None for nullable fields if key is missing
-        github=data.get('github', None)
-    )
-    # Assign order_id if the model supports it
-    if hasattr(TeamMember, 'order_id'):
-         team_member.order_id = new_order_id
+    try: # Add try-except for database operations
+        team_member = TeamMember(
+            name=data.get('name', ''),
+            title=data.get('title', ''),
+            bio=data.get('bio', ''),
+            image=data.get('image', ''),
+            linkedin=data.get('linkedin', None), # Use None for nullable fields if key is missing
+            github=data.get('github', None)
+        )
+        # Assign order_id if the model supports it
+        if hasattr(TeamMember, 'order_id'):
+            team_member.order_id = new_order_id
 
-    db.session.add(team_member)
-    db.session.commit()
-     # Include order_id in the response if it was assigned
-    response_data = {"message": "Team member added successfully!", "id": team_member.id}
-    if hasattr(team_member, 'order_id'):
-        response_data["order_id"] = team_member.order_id
-    return jsonify(response_data), 201
+        db.session.add(team_member)
+        db.session.commit()
+        # Include order_id in the response if it was assigned
+        response_data = {"message": "Team member added successfully!", "id": team_member.id}
+        if hasattr(team_member, 'order_id'):
+            response_data["order_id"] = team_member.order_id
+        return jsonify(response_data), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in add_team_member: {str(e)}") # Log the error server-side
+        return jsonify({"error": f"Failed to add team member: {str(e)}"}), 500
 
 # TeamMember Update (PUT)
+# This function already had data = request.json, so it was correct.
 @app.route('/api/team/<int:id>', methods=['PUT'])
 @login_required
 def update_team_member(id):
     if db is None: return jsonify({"error": "Database not configured."}), 500
     data = request.json
+    if not data:
+        return jsonify({"error": "Invalid JSON payload or missing Content-Type header."}), 400
+        
     team_member = TeamMember.query.get(id)
     if team_member:
-        team_member.name = data.get('name', team_member.name)
-        team_member.title = data.get('title', team_member.title)
-        team_member.bio = data.get('bio', team_member.bio)
-        team_member.image = data.get('image', team_member.image)
-        team_member.linkedin = data.get('linkedin', team_member.linkedin) # Use get with existing value as default
-        team_member.github = data.get('github', team_member.github)
-        # Do NOT update order_id here
-        db.session.commit()
-        return jsonify({"message": "Team member updated successfully!"})
+        try: # Add try-except for database operations
+            team_member.name = data.get('name', team_member.name)
+            team_member.title = data.get('title', team_member.title)
+            team_member.bio = data.get('bio', team_member.bio)
+            team_member.image = data.get('image', team_member.image)
+            team_member.linkedin = data.get('linkedin', team_member.linkedin)
+            team_member.github = data.get('github', team_member.github)
+            # Do NOT update order_id here
+            db.session.commit()
+            return jsonify({"message": "Team member updated successfully!"})
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error in update_team_member for ID {id}: {str(e)}")
+            return jsonify({"error": f"Failed to update team member: {str(e)}"}), 500
     return jsonify({"message": "Team member not found!"}), 404
 
 # TeamMember Delete (DELETE)
