@@ -1,8 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/index.py": {
-      "runtime": "python3.12",
+    "api/**/*.py": {
       "memory": 1024,
       "maxDuration": 10
     }
