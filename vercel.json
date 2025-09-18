@@ -1,9 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "api/app.py": { "runtime": "python3.12", "maxLambdaSize": "15mb" }
+    "api/index.py": {
+      "runtime": "python3.12",
+      "memory": 1024,
+      "maxDuration": 10
+    }
   },
   "routes": [
-    { "src": "/(.*)", "dest": "/api/app.py" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/api/index.py" }
   ]
 }
