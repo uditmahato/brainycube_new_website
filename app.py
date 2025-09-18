@@ -260,7 +260,7 @@ def index():
     # Check if database is configured before attempting to query
     if db is None:
         # Render a maintenance page or error if DB is down/not configured
-        return "Database is not configured. Site content unavailable.", 500 # Consider rendering an HTML error page
+        return render_template('maintenance.html'), 503 # Consider rendering an HTML error page
     if db is None and ALLOW_NO_DB:
         return render_template(
             'index.html',
