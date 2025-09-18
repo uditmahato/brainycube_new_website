@@ -1,18 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
+  "functions": {
+    "api/**/*.py": { "maxDuration": 10 }
+  },
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/api/index.py" }
-  ],
-  "functions": {
-    "api/**/*.py": {
-      "maxDuration": 10
-    }
-  }
+  ]
 }
