@@ -18,6 +18,11 @@ print("DEBUG: Loaded .env file")
 # --- App Initialization ---
 app = Flask(__name__)
 
+@app.get("/healthz")
+def healthz():
+    return {"ok": True}
+
+
 # Secret key
 app.secret_key = os.getenv('FLASK_SECRET_KEY') or 'super-fallback-secret-key-not-for-production-ever'
 if not os.getenv('FLASK_SECRET_KEY'):
@@ -249,14 +254,21 @@ def logout():
 
 
 # --- Website Routes ---
-
+ALLOW_NO_DB = os.getenv("ALLOW_NO_DB") == "1"
 @app.route('/')
 def index():
     # Check if database is configured before attempting to query
     if db is None:
         # Render a maintenance page or error if DB is down/not configured
-        return "Database is not configured. Site content unavailable.", 500 # Consider rendering an HTML error page
-
+        return render_template('maintenance.html'), 503 # Consider rendering an HTML error page
+    if db is None and ALLOW_NO_DB:
+        return render_template(
+            'index.html',
+            header=None, banner=None, about=None,
+            why_choose=[], highlights=[],
+            services=[], additional_services="",
+            events=[], team=[], contact=None, footer=None
+        )
     # Fetch data for the public website view
     # Fetch by querying the database models
     header = Header.query.first()

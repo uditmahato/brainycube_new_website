@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>We’ll be right back</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <!-- Auto-refresh every 60s (optional) -->
+  <!-- <meta http-equiv="refresh" content="60" /> -->
+  <style>
+    :root {
+      --bg1: #0f172a; /* slate-900 */
+      --bg2: #111827; /* gray-900 */
+      --card: #111827;
+      --text: #e5e7eb; /* gray-200 */
+      --muted: #9ca3af; /* gray-400 */
+      --accent: #22d3ee; /* cyan-400 */
+      --accent-2: #60a5fa; /* blue-400 */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(60rem 60rem at 10% 10%, rgba(34,211,238,0.08), transparent 60%),
+        radial-gradient(60rem 60rem at 90% 90%, rgba(96,165,250,0.08), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      font: 500 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .card {
+      width: min(720px, 92vw);
+      background: rgba(17,24,39,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 28px 24px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .row { display: flex; gap: 18px; align-items: center; }
+    .icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; color: #0b1020;
+      box-shadow: 0 6px 18px rgba(34,211,238,0.35);
+      flex: 0 0 56px;
+    }
+    h1 { margin: 6px 0 4px; font-size: clamp(22px, 3.4vw, 28px); line-height: 1.25; }
+    p  { margin: 0; color: var(--muted); }
+    .meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill {
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    .actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+    a.button, button.button {
+      appearance: none; border: none; cursor: pointer; text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b1020; padding: 10px 14px; border-radius: 12px; font-weight: 700;
+    }
+    .ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    footer { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="title">
+    <div class="row">
+      <div class="icon" aria-hidden="true">
+        <!-- simple heartbeat icon -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M3 13c0-3.866 3.134-7 7-7 2.657 0 4.983 1.471 6 3.62C17.017 7.471 19.343 6 22 6c3.866 0 7 3.134 7 7" transform="scale(.7) translate(2 2)" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 id="title">We’ll be right back</h1>
+        <p>
+          {{ message or "Our site is temporarily unavailable while we finish some maintenance." }}
+          {% if window_minutes %} Please try again in about {{ window_minutes }} minutes.{% endif %}
+        </p>
+        <div class="meta">
+          <span class="pill">HTTP 503 Service Unavailable</span>
+          <span class="pill">Status: {{ status or "Maintenance" }}</span>
+          <span class="pill">Request ID: {{ request_id or "-" }}</span>
+        </div>
+        <div class="actions">
+          <a class="button" href="/">Try again</a>
+          <button class="button ghost" onclick="location.reload()">Reload</button>
+        </div>
+        <footer>
+          Need help? Contact us at
+          <a href="mailto:{{ 'info@brainycube.org.np' }}">{{ info@brainycube.org.np }}</a>.
+        </footer>
+      </div>
+    </div>
+  </main>
+  <script>
+    // Optional: small countdown for auto-retry (disabled by default)
+    // const retryIn = 60; // seconds
+    // let left = retryIn;
+    // setInterval(() => { if (--left <= 0) location.reload(); }, 1000);
+  </script>
+</body>
+</html>
