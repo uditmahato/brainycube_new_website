@@ -1,10 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
+    "api/**/*.py": { "maxDuration": 10 }
   },
   "routes": [
     { "handle": "filesystem" },
