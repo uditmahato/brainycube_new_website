@@ -5,3 +5,5 @@ psycopg2-binary
 firebase-admin
 python-dotenv
 Flask-Migrate
+cloud-sql-python-connector[pg] 
+pg8000 

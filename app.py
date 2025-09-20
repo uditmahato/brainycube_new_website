@@ -13,6 +13,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from types import SimpleNamespace as NS
 
+
 print("--- app.py execution started ---")
 # Load environment variables first
 load_dotenv()
@@ -66,27 +67,83 @@ except Exception as e:
     firebase_admin_initialized = False
     auth = None
 
-# --- Database Configuration ---
-database_uri = os.getenv('DATABASE_URL') or os.getenv('POSTGRES_URL') or os.getenv('POSTGRES_URL_NO_SSL')
+# --- Database Configuration (Hybrid: Connector or URL) ---
+import os, json
+from flask_migrate import Migrate, upgrade as migrate_upgrade
+
 db_config_ok = False
 db = None
 migrate = None
 
-if database_uri:
-    # Normalize driver prefix
-    if database_uri.startswith('postgres://'):
-        database_uri = database_uri.replace('postgres://', 'postgresql://', 1)
+USE_CONNECTOR = bool(os.getenv("INSTANCE_CONNECTION_NAME"))  # if present, prefer connector
 
-    # Ensure sslmode=require for Neon / managed PG
-    if 'sslmode=' not in database_uri:
-        database_uri = f"{database_uri}{'&' if '?' in database_uri else '?'}sslmode=require"
+if USE_CONNECTOR:
+    # ---- Cloud SQL Python Connector path (no IP allow-listing) ----
+    print("DB: Using Cloud SQL Python Connector")
+# --- inside the USE_CONNECTOR block ---
+    from google.cloud.sql.connector import Connector, IPTypes
+    from google.oauth2 import service_account
+    import base64, json
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Prefer base64 to avoid dotenv parsing issues
+    sa_b64 = os.getenv("GCP_SA_KEY_B64")
+    sa_raw = os.getenv("GCP_SA_KEY")
+    if sa_b64:
+        sa_dict = json.loads(base64.b64decode(sa_b64))
+    elif sa_raw and sa_raw.strip().startswith("{"):
+        sa_dict = json.loads(sa_raw)
+    else:
+        raise RuntimeError("Provide GCP_SA_KEY_B64 (preferred) or GCP_SA_KEY as JSON.")
+
+    credentials = service_account.Credentials.from_service_account_info(sa_dict)
+
+
+    INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASS = os.getenv("DB_PASS")
+    DB_NAME = os.getenv("DB_NAME")
+
+    connector = Connector(credentials=credentials)
+
+    def getconn():
+        # Returns a pg8000 DB-API connection; SQLAlchemy will use this instead of a URL socket
+        conn = connector.connect(
+            INSTANCE_CONNECTION_NAME,
+            driver="pg8000",
+            user=DB_USER,
+            password=DB_PASS,
+            db=DB_NAME,
+            ip_type=IPTypes.PUBLIC,  # keep PUBLIC unless you’re on a private VPC
+        )
+        return conn
+
+    # Configure Flask-SQLAlchemy to use the creator
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+pg8000://"
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "creator": getconn,
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_size": 1,
+        "max_overflow": 0,
+    }
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db_config_ok = True
-    print("Database URI loaded from environment variable:", database_uri)
+
 else:
-    print("Warning: DATABASE_URL/POSTGRES_URL not set. Database connection not configured.")
+    # ---- URL path (Neon/local/Postgres/GCP Public IP) ----
+    print("DB: Using URL from env (DATABASE_URL/POSTGRES_URL/POSTGRES_URL_NO_SSL)")
+    database_uri = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("POSTGRES_URL_NO_SSL")
+    if database_uri:
+        if database_uri.startswith("postgres://"):
+            database_uri = database_uri.replace("postgres://", "postgresql://", 1)
+        if "sslmode=" not in database_uri:
+            database_uri = f"{database_uri}{'&' if '?' in database_uri else '?'}sslmode=require"
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        print("Database URI loaded from environment variable:", database_uri)
+        db_config_ok = True
+    else:
+        print("Warning: DATABASE_URL/POSTGRES_URL not set. Database connection not configured.")
 
 # Initialize SQLAlchemy and Flask-Migrate
 if db_config_ok:
@@ -101,7 +158,6 @@ if db_config_ok:
         print("SQLAlchemy initialized successfully.")
         migrate = Migrate(app, db)
         print("Flask-Migrate initialized successfully.")
-        # Import models after db initialization (safe: doesn't connect yet)
         print("DEBUG: Importing models")
         from models import Header, Banner, About, WhyChoose, Highlight, Service, Event, TeamMember, Contact, Footer
         print("Models imported successfully.")
@@ -111,7 +167,8 @@ if db_config_ok:
         db = None
         migrate = None
 else:
-    print("Database initialization skipped due to missing URI.")
+    print("Database initialization skipped due to missing config.")
+
 
 # --- Vercel Build Step: Run Migrations ---
 if os.getenv('RUN_VERCEL_MIGRATIONS') == '1' and db_config_ok and db and migrate:
